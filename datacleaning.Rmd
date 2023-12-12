@@ -1,5 +1,5 @@
 ---
-title: " " 
+title: Final Project
 output: html_document
 ---
 
@@ -14,5 +14,156 @@ library(xts)
 library("lubridate")
 library("RColorBrewer")
 library("ggthemes")
+library(gridExtra)
+
 data <- read_csv("./Project_1_data.csv")
+
+for (column in colnames(data)) {
+  num_distinct_values <- length(unique(data[[column]]))
+  print(paste(column, ":", num_distinct_values, "distinct values"))
+}
+
+library(ggplot2)
 ```
+
+```{r}
+# Create a ggplot for the distribution of MathScore
+plot_math <- ggplot(data, aes(x = MathScore)) +
+  geom_histogram(fill = "skyblue", color = "black", bins = 30) +
+  labs(title = "Distribution of MathScore", x = "Score")
+
+# Create a ggplot for the distribution of ReadingScore
+plot_reading <- ggplot(data, aes(x = ReadingScore)) +
+  geom_histogram(fill = "lightcoral", color = "black", bins = 30) +
+  labs(title = "Distribution of ReadingScore", x = "Score")
+
+# Create a ggplot for the distribution of WritingScore
+plot_writing <- ggplot(data, aes(x = WritingScore)) +
+  geom_histogram(fill = "lightgreen", color = "black", bins = 30) +
+  labs(title = "Distribution of WritingScore", x = "Score")
+
+grid.arrange(plot_math, plot_reading, plot_writing, ncol = 3)
+
+ggtitle("Distribution of the test scores")
+```
+
+To deal with NA values, we replaced every NA value with the most frequent value in each column. 
+```{r}
+data_cleaned <- apply(data, 2, function(x) ifelse(is.na(x), names(sort(table(x), decreasing = TRUE)[1]), x))
+
+null_val <- sum(is.na(data_cleaned))
+
+if (null_val > 0) {
+  print(paste('Try imputing again, there are', null_val, 'null values remaining in the dataset'))
+} else {
+  print('Congratulations! You have successfully imputed all the null values in the dataset.')
+}
+```
+
+```{r}
+data_cleaned <- data.frame(data_cleaned)
+
+order_parent_educ_categories <- c('some high school', 'high school', "associate's degree", 'some college', "bachelor's degree", "master's degree")
+
+order_ethnic_categories <- c('group A', 'group B', 'group C', 'group D', 'group E')
+
+data_cleaned <- data_cleaned %>% 
+  mutate(Gender = as.factor(Gender), 
+         MathScore = as.integer(MathScore), 
+         ReadingScore = as.integer(ReadingScore), 
+         WritingScore = as.integer(WritingScore),
+         ParentEduc = factor(ParentEduc, levels = order_parent_educ_categories, ordered = TRUE), 
+         EthnicGroup = factor(EthnicGroup, levels = order_ethnic_categories, ordered = TRUE))
+
+```
+
+
+Gender
+
+- The distribution of male and female students in the dataset is fairly balanced.
+- Score wise girls performed better that boys in ReadingScore andwritingScore, whereas boys scored better in MathScore.
+
+```{r}
+ggplot(data_cleaned, aes(x = Gender)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Gender") +
+  theme_minimal()
+```
+
+```{r}
+mean_scores <- data_cleaned %>%
+  group_by(Gender) %>%
+  summarise(
+    Mean_MathScore = mean(MathScore),
+    Mean_ReadingScore = mean(ReadingScore),
+    Mean_WritingScore = mean(WritingScore)
+  )
+
+print(mean_scores)
+```
+
+Parent(s) educational background
+
+- There are six categories of educational background of parent(s) of the students, ranging from master's education (the highest level) to highschool dropouts (some high school)
+- In terms of distribution, master's degree holder parent(s) are the least at 5.8% and parent(s) with some college are the most at 26.6%.
+- When it comes to the students' test scores, there seems to be a clear correlation with their parents(s) educational background. Children of highly educated parents score better than the children of less educated parents. This pattern is seen consistently with all three test subjects.
+
+```{r}
+order_parent_educ_categories <- c('some high school', 'high school', "associate's degree", 'some college', "bachelor's degree", "master's degree")
+
+ggplot(data_cleaned, aes(x = factor(ParentEduc, levels = order_parent_educ_categories))) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Parents educational background") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
+```
+
+```{r}
+val_cnt <- as.data.frame(table(data_cleaned$ParentEduc))
+val_cnt_norm <- prop.table(table(data_cleaned$ParentEduc)) * 100
+
+val_cnt
+val_cnt_norm <- as.data.frame(val_cnt_norm)
+val_cnt_norm
+
+mean_score_summary <- data_cleaned%>%
+  group_by(ParentEduc) %>%
+  summarise_all(mean) %>% 
+  select(ParentEduc,MathScore, ReadingScore, WritingScore)
+
+mean_score_summary
+```
+
+Ethnic group
+
+- There are five races/ethnic groups represented in the dataset; (anonymized) from group A to group E
+- With 35.4% of the student population, race group C are the most represented whereas with only 8.4% race group A are the least.
+- The effect of race on students' performance is clear to see. Race group E students are by far the better performers having scored 6 points more than the second group (D) in math and 3 more points in reading score and close to 1 point in writing test. At the other end of the scoreboard we find race group A; this group scored almost 12 points on math lower than that of group E. 
+
+```{r}
+order_ethnic_categories <- c('group A', 'group B', 'group C', 'group D', 'group E')
+
+ggplot(data_cleaned, aes(x = factor(EthnicGroup, levels = order_ethnic_categories))) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Which ethnic group do the students belong to?") +
+  theme_minimal()
+```
+
+```{r}
+val_cnt <- as.data.frame(table(data_cleaned$EthnicGroup))
+val_cnt_norm <- prop.table(table(data_cleaned$EthnicGroup)) * 100
+
+val_cnt
+val_cnt_norm <- as.data.frame(val_cnt_norm)
+val_cnt_norm
+
+mean_score_summary <- data_cleaned%>%
+  group_by(EthnicGroup) %>%
+  summarise_all(mean) %>% 
+  select(EthnicGroup ,MathScore, ReadingScore, WritingScore)
+
+mean_score_summary
+```
+
+
+
