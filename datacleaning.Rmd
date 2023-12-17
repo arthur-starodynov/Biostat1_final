@@ -191,13 +191,6 @@ mean_score_summary
 ```
 
 
-```
-Arthur Added 
-
-
-```
-
-
 Finding the correlation matrix between math, reading and writing scores. 
 
 ```{r}
@@ -211,7 +204,6 @@ corrplot(cor.matrix)
 ```
 
 
-7. PracticeSport: How often the student parctice sport (never/sometimes/regularly))
 8. IsFirstChild: If the child is first child in the family or not (yes/no)
 9. NrSiblings: Number of siblings the student has (0 to 7)
 10. TransportMeans: Means of transport to school (schoolbus/private)
@@ -282,6 +274,16 @@ ggplot(data_cleaned, aes(x = ParentMaritalStatus)) +
   geom_bar(fill = "aquamarine3", color = "black") +
   labs(title = "Gender") +
   theme_minimal()
+
+bar_status <- ggplot(data = data_cleaned) + 
+  geom_bar(
+    mapping = aes(x = ParentMaritalStatus, fill = ParentMaritalStatus), 
+    show.legend = FALSE,
+    width = 1
+  ) + 
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+bar_status + coord_polar()
 ```
 
 
@@ -297,5 +299,55 @@ mean_scores_prep
 
 ```
 
-Practice Sport
+Practice Sport: 
 
+- More people play sports regularly or sometimes more than people who dont. 
+
+- It appears to not have a massive affect on the outcome of the test scores
+
+```{r}
+ggplot(data_cleaned, aes(x = PracticeSport)) +
+  geom_bar(fill = "aquamarine3", color = "black") +
+  labs(title = "Gender") +
+  theme_minimal()
+
+```
+
+```{r}
+mean_scores_prep <- data_cleaned %>%
+  group_by(PracticeSport) %>%
+  summarise(
+    Mean_MathScore = mean(MathScore),
+    Mean_ReadingScore = mean(ReadingScore),
+    Mean_WritingScore = mean(WritingScore)
+  )
+mean_scores_prep
+
+```
+
+Is First Child:
+
+- 
+
+- 
+
+
+```{r}
+ggplot(data_cleaned, aes(x = IsFirstChild)) +
+  geom_bar(fill = "aquamarine3", color = "black") +
+  labs(title = "Gender") +
+  theme_minimal()
+
+```
+
+```{r}
+mean_scores_prep <- data_cleaned %>%
+  group_by(IsFirstChild) %>%
+  summarise(
+    Mean_MathScore = mean(MathScore),
+    Mean_ReadingScore = mean(ReadingScore),
+    Mean_WritingScore = mean(WritingScore)
+  )
+mean_scores_prep
+
+```
