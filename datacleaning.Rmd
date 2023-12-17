@@ -204,13 +204,6 @@ corrplot(cor.matrix)
 ```
 
 
-8. IsFirstChild: If the child is first child in the family or not (yes/no)
-9. NrSiblings: Number of siblings the student has (0 to 7)
-10. TransportMeans: Means of transport to school (schoolbus/private)
-11. WklyStudyHours: Weekly self-study hours(less that 5hrs; between 5 and 10hrs; more than
-10hrs
-
-
 Lunch Type: 
 
 - We notice that the amount of students on standard lunch is greater than the amount of student on free and reduced. 
@@ -327,9 +320,9 @@ mean_scores_prep
 
 Is First Child:
 
-- 
+- We can see that most students are first children in their family
 
-- 
+- On average first children do better on the test then those who arent may be based on how much they are able to study. 
 
 
 ```{r}
@@ -349,5 +342,105 @@ mean_scores_prep <- data_cleaned %>%
     Mean_WritingScore = mean(WritingScore)
   )
 mean_scores_prep
+
+```
+
+Number of siblings: 
+
+-most people only have a few siblings
+
+- since those with many siblings are a smaller proportion of the population, the data may be skewed based on that one significant persons intelligence/performance on test
+
+```{r}
+ggplot(data_cleaned, aes(x = NrSiblings)) +
+  geom_bar(fill = "aquamarine3", color = "black") +
+  labs(title = "Gender") +
+  theme_minimal()
+bar_numb <- ggplot(data = data_cleaned) + 
+  geom_bar(
+    mapping = aes(x = NrSiblings, fill = NrSiblings), 
+    show.legend = FALSE,
+    width = 1
+  ) + 
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+bar_numb + coord_polar()
+```
+
+
+```{r}
+mean_scores_prep <- data_cleaned %>%
+  group_by(NrSiblings) %>%
+  summarise(
+    Mean_MathScore = mean(MathScore),
+    Mean_ReadingScore = mean(ReadingScore),
+    Mean_WritingScore = mean(WritingScore)
+  )
+mean_scores_prep
+
+
+```
+
+
+Transport Means: 
+
+- most people take the school bus
+- no direct correlation on scores based on private versus public transit
+
+```{r}
+ggplot(data_cleaned, aes(x = TransportMeans)) +
+  geom_bar(fill = "aquamarine3", color = "black") +
+  labs(title = "Gender") +
+  theme_minimal()
+
+```
+
+
+```{r}
+mean_scores_Trans <- data_cleaned %>%
+  group_by(TransportMeans) %>%
+  summarise(
+    Mean_MathScore = mean(MathScore),
+    Mean_ReadingScore = mean(ReadingScore),
+    Mean_WritingScore = mean(WritingScore)
+  )
+mean_scores_Trans
+
+```
+
+
+Weekly Study Hours: 
+
+- Most people wanted to study between 5- 10 hours
+
+- No significant affect on if you study more than 10 hours compared to people who study between 5-10 hours
+
+```{r}
+ggplot(data_cleaned, aes(x = WklyStudyHours)) +
+  geom_bar(fill = "aquamarine3", color = "black") +
+  labs(title = "Gender") +
+  theme_minimal()
+bar_study <- ggplot(data = data_cleaned) + 
+  geom_bar(
+    mapping = aes(x = WklyStudyHours, fill = WklyStudyHours), 
+    show.legend = FALSE,
+    width = 1
+  ) + 
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+bar_study + coord_polar()
+
+```
+
+
+```{r}
+mean_scores_study <- data_cleaned %>%
+  group_by(WklyStudyHours) %>%
+  summarise(
+    Mean_MathScore = mean(MathScore),
+    Mean_ReadingScore = mean(ReadingScore),
+    Mean_WritingScore = mean(WritingScore)
+  )
+mean_scores_study
 
 ```
