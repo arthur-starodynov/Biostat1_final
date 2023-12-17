@@ -1,0 +1,444 @@
+---
+title: "LM"
+output: html_document
+---
+
+```{r, libraries, warning = F, message = F, echo = F}
+library(tidyverse)
+library(lubridate)
+library(readr) 
+library(xts)
+library(RColorBrewer)
+library(ggthemes)
+library(gridExtra)
+library(gtsummary)
+library(flextable)
+library(broom)
+library(glmnet)
+library(rpart)
+library(randomForest)
+```
+
+```{r, read data, message = F, warning = F, echo = F}
+data <- read_csv("./Project_1_data.csv")
+
+order_parent_educ_categories <- c('some high school', 'high school', "associate's degree", 'some college', "bachelor's degree", "master's degree")
+order_ethnic_categories <- c('group A', 'group B', 'group C', 'group D', 'group E')
+order_sib <- c("never", "sometimes", "regularly")
+order_studyhrs <- c("< 5", "5-10", "> 10")
+
+data_cleaned <- data.frame(apply(data, 2, function(x) ifelse(is.na(x), names(sort(table(x), decreasing = TRUE)[1]), x))) %>% 
+  mutate(Gender = as.factor(Gender), 
+         MathScore = as.integer(MathScore), 
+         ReadingScore = as.integer(ReadingScore), 
+         WritingScore = as.integer(WritingScore),
+         ParentEduc = factor(ParentEduc, levels = order_parent_educ_categories, ordered = TRUE), 
+         EthnicGroup = factor(EthnicGroup, levels = order_ethnic_categories, ordered = TRUE),
+         NrSiblings = as.integer(NrSiblings),
+         IsFirstChild = as.factor(IsFirstChild),
+         PracticeSport = factor(PracticeSport, levels = order_sib, ordered = TRUE),
+         LunchType = as.factor(LunchType), 
+         TestPrep = as.factor(TestPrep),
+         ParentMaritalStatus = as.factor(ParentMaritalStatus),
+         TransportMeans = as.factor(TransportMeans),
+         WklyStudyHours = if_else(WklyStudyHours == "10-May", "5-10", WklyStudyHours),
+         WklyStudyHours = factor(WklyStudyHours, levels = order_studyhrs, ordered = TRUE))
+```
+
+
+```{r, message = F, warning = F, echo = F}
+table1 <- 
+tbl_summary(data_cleaned,
+            statistic = list(all_continuous() ~ "{mean} ({sd})",
+                   all_categorical() ~ "{n} / {N} ({p}%)"),
+            type = "NrSiblings" ~ "continuous") %>%
+  modify_caption("**Table 1. Overall Characteristics**")
+
+table1 %>% as_flex_table()
+```
+
+```{r, warning = F, message = F, eval=FALSE, echo = F}
+## Math
+# Backwards stepwise regression
+math_full <- lm (MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+step(math_full, direction = "backward", scope = formula(math_full))
+```
+
+```{r, warning = F, message = F, echo = F}
+# Math
+math_back <- lm(formula = MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + 
+     TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
+   data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+
+math_back %>% 
+  broom::tidy() %>%
+  dplyr::select(term, estimate, p.value) %>%
+  mutate(estimate = round(estimate, 3),
+         p.value = round(p.value, 3),
+         p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
+  kableExtra::kable(caption = "Table 2. Math score backwards stepwise model")
+
+```
+
+```{r, warning = F, message = F, eval=FALSE, echo = F}
+## Reading
+# Backwards stepwise regression
+reading_full <- lm (ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
+step(reading_full, direction = "backward", scope = formula(reading_full))
+
+```
+
+```{r, warning = F, message = F, echo = F}
+# Reading
+reading_back <- lm(formula = ReadingScore ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours, 
+   data = data_cleaned %>% select(-c(MathScore, WritingScore)))
+
+reading_back %>% 
+  broom::tidy() %>%
+  dplyr::select(term, estimate, p.value) %>%
+  mutate(estimate = round(estimate, 3),
+         p.value = round(p.value, 3),
+         p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
+  kableExtra::kable(caption = "Table 3. Reading score backwards stepwise model")
+```
+
+
+```{r, warning = F, message = F, eval=FALSE, echo = F}
+## Writing
+# Backwards stepwise regression
+writing_full <- lm (WritingScore ~ ., data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
+step(writing_full, direction = "backward", scope = formula(writing_full))
+
+
+```
+
+```{r, warning = F, message = F, echo = F}
+# Writing
+writing_back <- lm(formula = WritingScore ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
+   data = data_cleaned %>% dplyr::select(-c(MathScore, ReadingScore)))
+
+writing_back %>% 
+  broom::tidy() %>%
+  dplyr::select(term, estimate, p.value) %>%
+  mutate(estimate = round(estimate, 3),
+         p.value = round(p.value, 3),
+         p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
+  kableExtra::kable(caption = "Table 4. Writing score backwards stepwise model")
+```
+```
+Math
+
+```
+
+Break the data into training and testing 
+
+
+```{r}
+data_cleaned_math <- 
+  data_cleaned %>% 
+  select(c(-ReadingScore,-WritingScore))
+train.indices <- sample(nrow(data_cleaned_math), floor(nrow(data_cleaned_math)/1.5), replace = FALSE)
+validation.indices <- seq(nrow(data_cleaned_math))[-train.indices]
+pred.data.train <- data_cleaned_math[train.indices,]
+pred.data.train <- pred.data.train[,c(1,2,3,4,5,6,7,8,9,10,11,12)]
+pred.data.validation <- data_cleaned_math[validation.indices,]
+pred.data.validation <- pred.data.validation[,c(1,2,3,4,5,6,7,8,9,10,11,12)]
+```
+
+
+```{r}
+glmnet.formula <- as.formula(MathScore ~ .)
+glmnet.design.matrix <- model.matrix(glmnet.formula, data = pred.data.train)
+dim(glmnet.design.matrix)
+```
+
+```{r}
+
+glmnet.cv.data.out <- cv.glmnet(glmnet.design.matrix,
+                     y = pred.data.train$MathScore,
+                     family = c("gaussian"),
+                     type.measure="mse", # the model selection criteria 
+                     alpha = 1) # The Lasso regression
+plot(glmnet.cv.data.out)
+```
+
+
+```{r}
+saved.coef <- coef(glmnet.cv.data.out, s=c("lambda.1se"))
+chosen.vars <- data.frame(name = saved.coef@Dimnames[[1]][saved.coef@i + 1],
+                          coefficient = saved.coef@x)
+print(paste("The lasso regression chose", dim(chosen.vars)[1]-1,
+            "variables and 1 intercept"))
+print(saved.coef)
+```
+
+Math Scores Regression Tree
+
+```{r}
+tree.out.1 <-rpart(MathScore ~ ., data = pred.data.train,
+                   parms  = list(split="information"),
+                   control = rpart.control(minsplit=20))
+#Create a plot of the classification tree.
+#Code to plot the tree.
+plot(tree.out.1, uniform=TRUE, branch=0.2, margin=0.02) 
+text(tree.out.1, all=TRUE, use.n=TRUE)
+title("Math Scores Regression Tree")
+
+```
+
+
+Use Random Forest to see if we can model it better 
+
+
+```{r}
+data.train.rf <- randomForest(MathScore ~ .,
+                       data = pred.data.train,
+                       importance=TRUE)
+
+varImpPlot(data.train.rf)
+```
+
+we see lunch type is skewing the data so we need to get rid of it and train the random forest again. 
+
+```{r}
+data.train.rf2 <- randomForest(MathScore ~ . -LunchType,
+                       data = pred.data.train,
+                       importance=TRUE)
+
+varImpPlot(data.train.rf2)
+```
+
+```{r}
+optimum <- which.max(data.train.rf2$importance[,"%IncMSE"])
+opt.var <- data.train.rf2$importance[optimum,0,drop=FALSE]
+print("The most predictive variable with regard to Math Score is:")
+print(opt.var)
+
+```
+
+
+```{r}
+val.preds.rf <- predict(data.train.rf2, # The forest
+newdata = pred.data.validation, # The values of x to do prediction at type = c("response")
+)
+# Code to plot the predictions against the actual values
+plot(val.preds.rf, pred.data.validation$MathScore,
+     main = "Plot of Predictions vs. Actual for Math Score",
+     xlab = "Predicted Math Score",
+     ylab = "Actual Math Score")
+
+
+```
+
+`
+```
+Reading scores
+```
+
+
+```{r}
+data_cleaned_read <- 
+  data_cleaned %>% 
+  select(c(-MathScore,-WritingScore))
+train.indices <- sample(nrow(data_cleaned_read), floor(nrow(data_cleaned_read)/1.5), replace = FALSE)
+validation.indices <- seq(nrow(data_cleaned_read))[-train.indices]
+pred.data.train <- data_cleaned_read[train.indices,]
+pred.data.train <- pred.data.train[,c(1,2,3,4,5,6,7,8,9,10,11,12)]
+pred.data.validation <- data_cleaned_read[validation.indices,]
+pred.data.validation <- pred.data.validation[,c(1,2,3,4,5,6,7,8,9,10,11,12)]
+```
+
+
+```{r}
+glmnet.formula <- as.formula(ReadingScore ~ .)
+glmnet.design.matrix <- model.matrix(glmnet.formula, data = pred.data.train)
+dim(glmnet.design.matrix)
+
+```
+
+
+```{r}
+glmnet.cv.data.out <- cv.glmnet(glmnet.design.matrix,
+                     y = pred.data.train$ReadingScore,
+                     family = c("gaussian"),
+                     type.measure="mse", # the model selection criteria 
+                     alpha = 1) # The Lasso regression
+plot(glmnet.cv.data.out)
+
+```
+
+```{r}
+saved.coef <- coef(glmnet.cv.data.out, s=c("lambda.1se"))
+chosen.vars <- data.frame(name = saved.coef@Dimnames[[1]][saved.coef@i + 1],
+                          coefficient = saved.coef@x)
+print(paste("The lasso regression chose", dim(chosen.vars)[1]-1,
+            "variables and 1 intercept"))
+print(saved.coef)
+
+```
+
+
+```{r}
+tree.out.1 <-rpart(ReadingScore ~ ., data = pred.data.train,
+                   parms  = list(split="information"),
+                   control = rpart.control(minsplit=20))
+#Create a plot of the classification tree.
+#Code to plot the tree.
+plot(tree.out.1, uniform=TRUE, branch=0.2, margin=0.02) 
+text(tree.out.1, all=TRUE, use.n=TRUE)
+title("Reading Scores Regression Tree")
+
+
+```
+
+
+
+```{r}
+data.train.rf <- randomForest(ReadingScore ~ .,
+                       data = pred.data.train,
+                       importance=TRUE)
+
+varImpPlot(data.train.rf)
+
+```
+
+
+
+```{r}
+data.train.rf2 <- randomForest(ReadingScore ~ . -LunchType,
+                       data = pred.data.train,
+                       importance=TRUE)
+
+varImpPlot(data.train.rf2)
+
+```
+
+
+```{r}
+optimum <- which.max(data.train.rf2$importance[,"%IncMSE"])
+opt.var <- data.train.rf2$importance[optimum,0,drop=FALSE]
+print("The most predictive variable with regard to Reading Score is:")
+print(opt.var)
+
+```
+
+
+```{r}
+val.preds.rf <- predict(data.train.rf2, # The forest
+newdata = pred.data.validation, # The values of x to do prediction at type = c("response")
+)
+# Code to plot the predictions against the actual values
+plot(val.preds.rf, pred.data.validation$ReadingScore,
+     main = "Plot of Predictions vs. Actual for Reading Score",
+     xlab = "Predicted Reading Score",
+     ylab = "Actual Reading Score")
+
+
+```
+
+
+```
+Writing Scores
+
+```
+
+
+
+```{r}
+data_cleaned_writing <- 
+  data_cleaned %>% 
+  select(c(-MathScore,-ReadingScore))
+train.indices <- sample(nrow(data_cleaned_writing), floor(nrow(data_cleaned_writing)/1.5), replace = FALSE)
+validation.indices <- seq(nrow(data_cleaned_writing))[-train.indices]
+pred.data.train <- data_cleaned_writing[train.indices,]
+pred.data.train <- pred.data.train[,c(1,2,3,4,5,6,7,8,9,10,11,12)]
+pred.data.validation <- data_cleaned_writing[validation.indices,]
+pred.data.validation <- pred.data.validation[,c(1,2,3,4,5,6,7,8,9,10,11,12)]
+```
+
+
+```{r}
+glmnet.formula <- as.formula(WritingScore ~ .)
+glmnet.design.matrix <- model.matrix(glmnet.formula, data = pred.data.train)
+dim(glmnet.design.matrix)
+
+```
+
+
+```{r}
+glmnet.cv.data.out <- cv.glmnet(glmnet.design.matrix,
+                     y = pred.data.train$WritingScore,
+                     family = c("gaussian"),
+                     type.measure="mse", # the model selection criteria 
+                     alpha = 1) # The Lasso regression
+plot(glmnet.cv.data.out)
+
+```
+
+```{r}
+saved.coef <- coef(glmnet.cv.data.out, s=c("lambda.1se"))
+chosen.vars <- data.frame(name = saved.coef@Dimnames[[1]][saved.coef@i + 1],
+                          coefficient = saved.coef@x)
+print(paste("The lasso regression chose", dim(chosen.vars)[1]-1,
+            "variables and 1 intercept"))
+print(saved.coef)
+
+```
+
+
+```{r}
+tree.out.1 <-rpart(WritingScore ~ ., data = pred.data.train,
+                   parms  = list(split="information"),
+                   control = rpart.control(minsplit=20))
+#Create a plot of the classification tree.
+#Code to plot the tree.
+plot(tree.out.1, uniform=TRUE, branch=0.2, margin=0.02) 
+text(tree.out.1, all=TRUE, use.n=TRUE)
+title("Writing Scores Regression Tree")
+
+
+```
+
+
+
+```{r}
+data.train.rf3 <- randomForest(WritingScore ~ .,
+                       data = pred.data.train,
+                       importance=TRUE)
+
+varImpPlot(data.train.rf3)
+
+```
+
+
+
+```{r}
+optimum <- which.max(data.train.rf3$importance[,"%IncMSE"])
+opt.var <- data.train.rf3$importance[optimum,0,drop=FALSE]
+print("The most predictive variable with regard to Writing Score is:")
+print(opt.var)
+
+```
+
+
+```{r}
+val.preds.rf <- predict(data.train.rf3, # The forest
+newdata = pred.data.validation, # The values of x to do prediction at type = c("response")
+)
+# Code to plot the predictions against the actual values
+plot(val.preds.rf, pred.data.validation$WritingScore,
+     main = "Plot of Predictions vs. Actual for Writing Score",
+     xlab = "Predicted Writing Score",
+     ylab = "Actual Writing Score")
+
+```
+
+
+
+
+
+
+
+We can conclude that the most important variables runnning the random forest model for prediction was the Test Prep category to sort the means the of the test scores.
