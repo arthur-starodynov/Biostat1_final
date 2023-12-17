@@ -1,6 +1,6 @@
 ---
 title: "LM"
-output: html_document
+output: pdf_document
 ---
 
 ```{r, libraries, warning = F, message = F, echo = F}
