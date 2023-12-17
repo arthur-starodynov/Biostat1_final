@@ -15,6 +15,8 @@ library("lubridate")
 library("RColorBrewer")
 library("ggthemes")
 library(gridExtra)
+library(corrplot)
+library(fmsb)
 
 data <- read_csv("./Project_1_data.csv")
 
@@ -117,6 +119,17 @@ ggplot(data_cleaned, aes(x = factor(ParentEduc, levels = order_parent_educ_categ
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
 ```
+```{r}
+bar_parent <- ggplot(data = data_cleaned) + 
+  geom_bar(
+    mapping = aes(x = ParentEduc, fill = ParentEduc), 
+    show.legend = FALSE,
+    width = 1
+  ) + 
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+bar_parent + coord_polar()
+```
 
 ```{r}
 val_cnt <- as.data.frame(table(data_cleaned$ParentEduc))
@@ -148,6 +161,18 @@ ggplot(data_cleaned, aes(x = factor(EthnicGroup, levels = order_ethnic_categorie
   labs(title = "Which ethnic group do the students belong to?") +
   theme_minimal()
 ```
+```{r}
+bar_parent <- ggplot(data = data_cleaned) + 
+  geom_bar(
+    mapping = aes(x = EthnicGroup, fill = EthnicGroup), 
+    show.legend = FALSE,
+    width = 1
+  ) + 
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+bar_parent + coord_polar()
+
+```
 
 ```{r}
 val_cnt <- as.data.frame(table(data_cleaned$EthnicGroup))
@@ -166,4 +191,111 @@ mean_score_summary
 ```
 
 
+```
+Arthur Added 
+
+
+```
+
+
+Finding the correlation matrix between math, reading and writing scores. 
+
+```{r}
+scores_corr <- 
+  data_cleaned %>%
+  select(MathScore, ReadingScore, WritingScore) %>%
+  data.frame() %>%
+  janitor:: clean_names()
+cor.matrix<-cor(cor(scores_corr, use="pairwise.complete.obs"))
+corrplot(cor.matrix)
+```
+
+
+7. PracticeSport: How often the student parctice sport (never/sometimes/regularly))
+8. IsFirstChild: If the child is first child in the family or not (yes/no)
+9. NrSiblings: Number of siblings the student has (0 to 7)
+10. TransportMeans: Means of transport to school (schoolbus/private)
+11. WklyStudyHours: Weekly self-study hours(less that 5hrs; between 5 and 10hrs; more than
+10hrs
+
+
+Lunch Type: 
+
+- We notice that the amount of students on standard lunch is greater than the amount of student on free and reduced. 
+- We can see that those on standard lunch have a higher correlation to having a higher mean score on all 3 sections of the test. 
+
+
+```{r}
+ggplot(data_cleaned, aes(x = LunchType)) +
+  geom_bar(fill = "aquamarine3", color = "black") +
+  labs(title = "Gender") +
+  theme_minimal()
+
+```
+
+```{r}
+mean_scores_lunch <- data_cleaned %>%
+  group_by(LunchType) %>%
+  summarise(
+    Mean_MathScore = mean(MathScore),
+    Mean_ReadingScore = mean(ReadingScore),
+    Mean_WritingScore = mean(WritingScore)
+  )
+mean_scores_lunch
+```
+
+
+Test Prep: 
+
+- More people did not study for the test than those who did
+- Those who did complete test prep have a higher mean in scores than those who didnt. 
+- Associated with those who did not complete test prep could be bringing down the standard mean even further. 
+
+```{r}
+ggplot(data_cleaned, aes(x = TestPrep)) +
+  geom_bar(fill = "aquamarine3", color = "black") +
+  labs(title = "Gender") +
+  theme_minimal()
+```
+
+
+
+```{r}
+mean_scores_prep <- data_cleaned %>%
+  group_by(TestPrep) %>%
+  summarise(
+    Mean_MathScore = mean(MathScore),
+    Mean_ReadingScore = mean(ReadingScore),
+    Mean_WritingScore = mean(WritingScore)
+  )
+mean_scores_prep
+
+```
+
+Parent Marital Status: 
+
+- Most parents seen are married within this school.
+- Surprisingly those parents who are widowded and married had very similar test scores among the participants. 
+
+```{r}
+ggplot(data_cleaned, aes(x = ParentMaritalStatus)) +
+  geom_bar(fill = "aquamarine3", color = "black") +
+  labs(title = "Gender") +
+  theme_minimal()
+```
+
+
+```{r}
+mean_scores_prep <- data_cleaned %>%
+  group_by(ParentMaritalStatus) %>%
+  summarise(
+    Mean_MathScore = mean(MathScore),
+    Mean_ReadingScore = mean(ReadingScore),
+    Mean_WritingScore = mean(WritingScore)
+  )
+mean_scores_prep
+
+```
+
+Practice Sport
 

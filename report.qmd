@@ -7,19 +7,15 @@ author: "Ekaterina Hofrenning, Lauren Lazaro, Arthur Starodynov, Yuki Low"
 
 ## Abstract (condenses a brief introduction, brief description of methods, and main results into a one-paragraph summary)
 
-
-
 ## Introduction (brief context and background of the problem)
 
-It is well-documented that students coming from families with higher socio-economic statuses see higher average test scores. But, there are other factors such as study time, sports participation, ethnic group, and number of siblings that may interact with other co-variates and impact test scores. We are interested in exploring the impact of various personal and socio-economic factors on test scores within a public school. The test scores in question are related to math, reading, and writing. 
+It is well-documented that students coming from families with higher socio-economic statuses see higher average test scores. But, there are other factors such as study time, sports participation, ethnic group, and number of siblings that may interact with other co-variates and impact test scores. We are interested in exploring the impact of various personal and socio-economic factors on test scores within a public school. The test scores in question are related to math, reading, and writing.
 
 ## Methods (data description and statistical methods)
 
-The dataset is a sample of 948 individuals from a public school with math, reading, and writing test scores and the following variables of interest: gender, ethnic group, parental education, lunch type, test prep, parent's marital status, sports participation, first child, number of siblings, means of transportation to school, number of weekly study hours. Due to significant missing data, we imputed the missing values with the average or most common value per variable. 
+The dataset is a sample of 948 individuals from a public school with math, reading, and writing test scores and the following variables of interest: gender, ethnic group, parental education, lunch type, test prep, parent's marital status, sports participation, first child, number of siblings, means of transportation to school, number of weekly study hours. Due to significant missing data, we imputed the missing values with the average or most common value per variable.
 
 First, we conducted a data description (Table 1), computing the averages and standard deviations for continuous variables and counts and percentages for categorical variables. Our sample is well-balanced across sex. The sample is composed of majority first born children, children on standard fee lunch, children with married parents, school bus riders, and children who study 5-10 hours. The average number of siblings is 2 and each test score (math, writing, reading) average ranges between 66-69 points.
-
-
 
 ```{r, libraries, warning = F, message = F, echo = F}
 library(tidyverse)
@@ -72,11 +68,9 @@ tbl_summary(data_cleaned,
 table1 %>% as_flex_table()
 ```
 
-
 After looking at the distribution of the continuous outcomes, we decided that the variables looked fairly normal so we did not use log transformations.
 
-
-In order to predict test score from our variables of interest, we decided to use backwards stepwise regression for simplicity. For math score as the outcome, this gave the optimal predictors of Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours. 
+In order to predict test score from our variables of interest, we decided to use backwards stepwise regression for simplicity. For math score as the outcome, this gave the optimal predictors of Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours.
 
 ```{r, warning = F, message = F, eval=FALSE, echo = F}
 ## Math
@@ -100,9 +94,7 @@ math_back %>%
   kableExtra::kable(caption = "Table 2. Math score backwards stepwise model")
 ```
 
-
 \
-
 
 ```{r, warning = F, message = F, eval=FALSE, echo = F}
 ## Reading
@@ -126,9 +118,7 @@ reading_back %>%
   kableExtra::kable(caption = "Table 3. Reading score backwards stepwise model")
 ```
 
-
 \
-
 
 ```{r, warning = F, message = F, eval=FALSE, echo = F}
 ## Writing
@@ -152,16 +142,8 @@ writing_back %>%
   kableExtra::kable(caption = "Table 4. Writing score backwards stepwise model")
 ```
 
-
 ## Results
-
 
 ## Conclusions/Discussion
 
-
-## A brief summary on each group member’s contribution (method, data analysis, writing, etc).
-
-
-
-
-
+## A brief summary on each group member's contribution (method, data analysis, writing, etc).
