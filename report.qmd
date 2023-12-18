@@ -68,15 +68,15 @@ tbl_summary(data_cleaned,
 table1 %>% as_flex_table()
 ```
 
-After looking at the distribution of the continuous outcomes, we decided that the variables looked fairly normal so we did not use log transformations.
+After looking at the histograms of the continuous outcomes, we decided that the variables looked fairly normal so we did not use log transformations.
 
-In order to predict test score from our variables of interest, we decided to use backwards stepwise regression for simplicity. For math score as the outcome, this gave the optimal predictors of Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours.
+In order to predict test score from our variables of interest, we decided to use backwards, forwards, and stepwise regression. Each of the three methods selected the same results for each outcome. For math score as the outcome, the optimal predictors of Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours. For Reading score as the outcome, the optimal predictors are Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours. For writing score as the outcome, the optimal predictors are Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours.
 
 ```{r, warning = F, message = F, eval=FALSE, echo = F}
 ## Math
 # Backwards stepwise regression
-math_full <- lm (MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
-step(math_full, direction = "backward", scope = formula(math_full))
+math_full <- lm(MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+step(math_full, direction = "backward")
 ```
 
 ```{r, warning = F, message = F, echo = F}
@@ -99,8 +99,7 @@ math_back %>%
 ```{r, warning = F, message = F, eval=FALSE, echo = F}
 ## Reading
 # Backwards stepwise regression
-reading_full <- lm (ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
-step(reading_full, direction = "backward", scope = formula(reading_full))
+reading_full <- lm(ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
 ```
 
 ```{r, warning = F, message = F, echo = F}
@@ -124,7 +123,7 @@ reading_back %>%
 ## Writing
 # Backwards stepwise regression
 writing_full <- lm (WritingScore ~ ., data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
-step(writing_full, direction = "backward", scope = formula(writing_full))
+step(writing_full, direction = "backward")
 ```
 
 ```{r, warning = F, message = F, echo = F}
@@ -142,8 +141,15 @@ writing_back %>%
   kableExtra::kable(caption = "Table 4. Writing score backwards stepwise model")
 ```
 
+
 ## Results
+
 
 ## Conclusions/Discussion
 
+
 ## A brief summary on each group member's contribution (method, data analysis, writing, etc).
+
+
+
+
