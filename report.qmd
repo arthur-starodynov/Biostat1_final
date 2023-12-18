@@ -147,6 +147,27 @@ writing_back %>%
   kableExtra::kable(caption = "Table 4. Writing score backwards stepwise model")
 ```
 
+
+Testing interaction models:
+
+```{r, warning = F, message = F, eval=FALSE, echo = F}
+## Math
+test <- lm(MathScore ~ Gender + LunchType + EthnicGroup + PracticeSport + ParentEduc + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + ParentMaritalStatus + TestPrep, 
+   data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+summary(test)
+step(test, direction = "backward")
+
+testing <- lm(MathScore ~ Gender + LunchType + EthnicGroup + PracticeSport + ParentEduc + IsFirstChild + WklyStudyHours + ParentMaritalStatus + TestPrep + PracticeSport:ParentEduc, data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+summary(testing)
+
+# NrSiblings + TransportMeans drop out
+```
+
+
+
+
+
+
 ## Conclusions/Discussion
 
 ## A brief summary on each group member's contribution (method, data analysis, writing, etc).
