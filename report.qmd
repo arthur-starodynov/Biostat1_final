@@ -9,13 +9,15 @@ author: "Ekaterina Hofrenning, Lauren Lazaro, Arthur Starodynov, Yuki Low"
 
 ## Introduction (brief context and background of the problem)
 
-It is well-documented that students coming from families with higher socio-economic statuses see higher average test scores. But, there are other factors such as study time, sports participation, ethnic group, and number of siblings that may interact with other co-variates and impact test scores. We are interested in exploring the impact of various personal and socio-economic factors on test scores within a public school. The test scores in question are related to math, reading, and writing.
+It is well-documented that educational success is influenced by a multitude of factors that extend beyond one's academic preparation. Our study aims to predict math, reading and writing scores based on personal and socio-economic variables. The dataset used for our study provides us with a diverse range of variables and gives us the opportunity to uncover patterns that influence a student's test outcome.
 
 ## Methods (data description and statistical methods)
 
-The dataset is a sample of 948 individuals from a public school with math, reading, and writing test scores and the following variables of interest: gender, ethnic group, parental education, lunch type, test prep, parent's marital status, sports participation, first child, number of siblings, means of transportation to school, number of weekly study hours. Due to significant missing data, we imputed the missing values with the average or most common value per variable.
+The dataset is a sample of 948 individuals from a public school with math, reading, and writing test scores (ranging from 0-100) and the following variables of interest: gender, ethnic group, parental education, lunch type, test prep, parent's marital status, sports participation, first child, number of siblings, means of transportation to school, number of weekly study hours. Due to significant missing data, we imputed the missing values with the average or most common value per variable.
 
-First, we conducted a data description (Table 1), computing the averages and standard deviations for continuous variables and counts and percentages for categorical variables. Our sample is well-balanced across sex. The sample is composed of majority first born children, children on standard fee lunch, children with married parents, school bus riders, and children who study 5-10 hours. The average number of siblings is 2 and each test score (math, writing, reading) average ranges between 66-69 points.
+Math, reading and writing tests scores were the response variables and were scored from 0 to 100. Math test scores ranged from 0 to 100 with a mean score of 65.9821 and a median score of 66. Reading test scores ranged from 17 to 100 with a mean score of 68.8418 and a median score of 69.5. Writing test scores ranged from 10 to 100 with a mean score of 67.9293 and a median score of 68. The histograms of the distributions of math, reading and writing tests scores are slightly skewed to the left. In order to make the distributions more normal, we attempted both logarithmic transformations and square root transformations in which both of these types of transformations resulted in more severely skewed distributions. In the end, we decided to proceed with using no transformation on the test score variables.
+
+We conducted a data description (Table 1), computing the averages and standard deviations for continuous variables and counts and percentages for categorical variables. Our sample is well-balanced across sex. The sample is composed of majority first born children, children on standard fee lunch, children with married parents, school bus riders, and children who study 5-10 hours. The average number of siblings is 2.
 
 ```{r, libraries, warning = F, message = F, echo = F}
 library(tidyverse)
@@ -70,6 +72,12 @@ table1 %>% as_flex_table()
 
 After looking at the histograms of the continuous outcomes, we decided that the variables looked fairly normal so we did not use log transformations.
 
+We used a few different methods for model building. First, we decided to use backwards, forwards and stepwise regression. Then, we split our data into training and validation sets for each student (math, reading, writing). We used Lasso regression to select important variables and their coefficients. We also proceeded with building Random Forest models to predict the scores for each student. Our model was then validated using the validation sets.
+
+The chosen model was then tested through model diagnosis and influence diagnosis to make sure all assumptions are met and no significant outliers were influencing the model. 
+
+## Results
+
 In order to predict test score from our variables of interest, we decided to use backwards, forwards, and stepwise regression. Each of the three methods selected the same results for each outcome. For math score as the outcome, the optimal predictors of Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours. For Reading score as the outcome, the optimal predictors are Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours. For writing score as the outcome, the optimal predictors are Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours.
 
 ```{r, warning = F, message = F, eval=FALSE, echo = F}
@@ -93,8 +101,6 @@ math_back %>%
          p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
   kableExtra::kable(caption = "Table 2. Math score backwards stepwise model")
 ```
-
-\
 
 ```{r, warning = F, message = F, eval=FALSE, echo = F}
 ## Reading
@@ -141,15 +147,6 @@ writing_back %>%
   kableExtra::kable(caption = "Table 4. Writing score backwards stepwise model")
 ```
 
-
-## Results
-
-
 ## Conclusions/Discussion
 
-
 ## A brief summary on each group member's contribution (method, data analysis, writing, etc).
-
-
-
-
