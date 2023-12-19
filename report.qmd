@@ -72,7 +72,7 @@ table1 %>% as_flex_table()
 
 After looking at the histograms of the continuous outcomes, we decided that the variables looked fairly normal so we did not use log transformations.
 
-We used a few different methods for model building. First, we decided to use backwards, forwards and stepwise regression. Then, we split our data into training and validation sets for each student (math, reading, writing). We used Lasso regression to select important variables and their coefficients. We also proceeded with building Random Forest models to predict the scores for each student. Our model was then validated using the validation sets.
+We employed a multi-faceted approach to model building. Initially, we fit simple linear regression models for each of the three scores, utilizing all available covariates in our dataset. Subsequently, we conducted a comprehensive exploration by implementing backward, forward, and stepwise regression techniques. This allowed us to assess how variables varied when adjusting for all covariates through multiple linear regression modeling. The combination of these methods provided a nuanced understanding of the relationships between predictors and scores, capturing both individual and collective effects.
 
 The chosen model was then tested through model diagnostics and influential observation diagnostics to make sure all assumptions are met and no significant outliers were influencing the model.
 
@@ -80,17 +80,9 @@ The chosen model was then tested through model diagnostics and influential obser
 
 From the SLR model, we found that the linear association between MathScore and the predictors LunchType, Gender, TestPrep and WklyStudyHours were significant. The average increase in MathScore was 8.7216 (p=3e-09) for students of ethnic group B and 3.4986 (p=0.00759) for students of ethnic group C compared to students of ethnic group A without adjusting for all other covariates. The average increase in MathScore between students with parents with some high school education and students with parents who completed their high school education was 6.0952 (p=0.000139) without adjusting for all other covariates. The average decrease in MathScore between students with parents with some high school education and students with parents who have their Master's degree was 2.8793 (p=0.009353) without adjusting for all other covariates. The average increase in MathScore between students with divorced parents and students with married parents was 4.142 (p=0.040) without adjusting for all other covariates. The average decrease in MathScore was 3.6763 (p=0.041) for students with 1 sibling and 3.8757 (p=0.0390) for students with 2 siblings compared to only children without adjusting for all other covariates. Note that the linear association between MathScore and PracticeSport, IsFirstChild, and TransportMeans were not significant.
 
-After fitting a MLR using forwards, backwards and stepwise regression model building methods, we noticed that the linear association between MathScore and EthnicGroup, ParentEduc, ParentMaritalStatus, PracticeSport and IsFirstChild became significant after adjusting for all other covariates. Note that the linear association between MathScore and LunchType, Gender, TestPrep and WklyStudyHours were still significant after adjusting for all other covariates. Note that each of the three methods selected the same results. Therefore, for Mathscore as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours.
+After fitting a MLR using forwards, backwards and stepwise regression model building methods, we noticed that the linear association between MathScore and EthnicGroup, ParentEduc, ParentMaritalStatus, PracticeSport and IsFirstChild became significant after adjusting for all other covariates. Note that the linear association between MathScore and LunchType, Gender, TestPrep and WklyStudyHours were still significant after adjusting for all other covariates. Therefore, for Mathscore as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours. Our estimates for coefficients for each of our significant covariates associated with MathScore are located in our Appendix in Table 2, 3 and 4. Note that each of the three methods selected the same results.
 
-From the SLR model, we found that the linear association between ReadingScore and the predictors LunchType, Gender, TestPrep and IsFirstChild were significant. The average increase in ReadingScore between students of ethnic group A and ethnic group B was 5.95373 (p=2.64e-05) without adjusting for all other covariates. The average increase in ReadingScore between students with parents with some high school education and students with parents who completed their high school education was 8.2312 (p=5.85e-08) without adjusting for all other covariates. The average decrease in ReadingScore between students with parents with some high school education and students with parents who have their Master's degree was 3.5466 (p=0.000717) without adjusting for all other covariates. The average increase in ReadingScore between students with divorced parents and students with married parents was 3.965 (p=0.039) without adjusting for all other covariates. The average increase in ReadingScore between students who studied less than 5 hours and students who studied 10-May was 2.6298 (p=0.0194) without adjusting for all other covariates. The average difference in ReadingScore between students who studied less than 5 hours and students who studied greater than 10 hours was insignificant (p=0.0541) without adjusting for all other covariates. Note that the linear association between ReadingScore and PracticeSport, NrSiblings, and TransportMeans were not significant.
-
-After fitting a MLR using forwards, backwards and stepwise regression model building methods, we noticed that the linear association between ReadingScore and EthnicGroup, ParentEduc, ParentMaritalStatus and WklyStudyHours became significant after adjusting for all other covariates. Note that the linear association between ReadingScore and Gender, LunchType, TestPrep and IsFirstChild were still significant after adjusting for all other covariates. Note that each of the three methods selected the same results. Therefore, for ReadingScore as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, IsFirstChild, and WklyStudyHours.
-
-For writing score as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours.
-
-Model diagnosis is an essential step in the modeling process. The models need to be checked through visual and statistical tests to make sure all assumptions are met. Through this process, we could evaluate if the models we fit well represented our study.
-
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, eval = F, echo = F}
 ## Math
 # Backwards stepwise regression
 math_full <- lm(MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
@@ -110,11 +102,13 @@ math_back %>%
          p.value = round(p.value, 3),
          p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
   kableExtra::kable(caption = "Table 2. Math score stepwise model")
-
-plot(math_back)
 ```
 
-```{r, warning = F, message = F, echo = F}
+From the SLR model, we found that the linear association between ReadingScore and the predictors LunchType, Gender, TestPrep and IsFirstChild were significant. The average increase in ReadingScore between students of ethnic group A and ethnic group B was 5.95373 (p=2.64e-05) without adjusting for all other covariates. The average increase in ReadingScore between students with parents with some high school education and students with parents who completed their high school education was 8.2312 (p=5.85e-08) without adjusting for all other covariates. The average decrease in ReadingScore between students with parents with some high school education and students with parents who have their Master's degree was 3.5466 (p=0.000717) without adjusting for all other covariates. The average increase in ReadingScore between students with divorced parents and students with married parents was 3.965 (p=0.039) without adjusting for all other covariates. The average increase in ReadingScore between students who studied less than 5 hours and students who studied 10-May was 2.6298 (p=0.0194) without adjusting for all other covariates. The average difference in ReadingScore between students who studied less than 5 hours and students who studied greater than 10 hours was insignificant (p=0.0541) without adjusting for all other covariates. Note that the linear association between ReadingScore and PracticeSport, NrSiblings, and TransportMeans were not significant.
+
+After fitting a MLR using forwards, backwards and stepwise regression model building methods, we noticed that the linear association between ReadingScore and EthnicGroup, ParentEduc, ParentMaritalStatus and WklyStudyHours became significant after adjusting for all other covariates. Note that the linear association between ReadingScore and Gender, LunchType, TestPrep and IsFirstChild were still significant after adjusting for all other covariates. Note that each of the three methods selected the same results. Therefore, for ReadingScore as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, IsFirstChild, and WklyStudyHours.
+
+```{r, warning = F, message = F, echo = F, eval = F}
 ## Reading
 # Backwards stepwise regression
 reading_full <- lm(ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
@@ -135,7 +129,13 @@ reading_back %>%
   kableExtra::kable(caption = "Table 3. Reading score stepwise model")
 ```
 
-\
+For writing score as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours.
+
+Model diagnosis is an essential step in the modeling process. The models need to be checked through visual and statistical tests to make sure all assumptions are met. Through this process, we could evaluate if the models we fit well represented our study.
+
+```{r, warning = F, message = F, echo = F}
+plot(math_back)
+```
 
 ```{r, warning = F, message = F, echo = F}
 ## Writing
