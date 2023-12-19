@@ -1,17 +1,19 @@
 ---
-title: "Final Project Paper"
+title: "P8130 Final Project Paper"
 format: docx
 editor: visual
-author: "Ekaterina Hofrenning, Lauren Lazaro, Arthur Starodynov, Yuki Low"
+author: "Ekaterina Hofrenning (eih2108), Lauren Lazaro (lel2176), Arthur Starodynov (as7123), Yuki Low (yl5503)"
 ---
 
-## Abstract (condenses a brief introduction, brief description of methods, and main results into a one-paragraph summary)
+## Abstract 
 
-## Introduction (brief context and background of the problem)
+Educational success is influenced by many factors related to a child's personal life and socio-economic factors. We predict a student's Math, Reading, and Writing Test Scores using a range of variables related to their family life, studying habits, ethnic background, and more. Using a variety of step-wise and criterion-based model selection approaches, we determine that the significant predictors of Math and Reading Test Scores are: gender, ethnic group, parental education, lunch type, test prep, parental marital status, sports participation, birth order, and study hours per week. The significant predictors of Writing Test Score were similar but also included the number of siblings a child has and the mode of transportation method to school. 
 
-It is well-documented that educational success is influenced by a multitude of factors that extend beyond one's academic preparation. Our study aims to predict math, reading and writing scores based on personal and socio-economic variables. The dataset used for our study provides us with a diverse range of variables and gives us the opportunity to uncover patterns that influence a student's test outcome.
+## Introduction
 
-## Methods (data description and statistical methods)
+It is well-documented that educational success is influenced by a multitude of factors that extend beyond one's academic preparation. Our study aims to predict math, reading and writing scores based on personal and socio-economic variables. We do so via a variety of linear regressions and variable selection techniques. The dataset used for our study provides us with a diverse range of variables and gives us the opportunity to uncover patterns that influence a student's test outcome.
+
+## Methods
 
 The dataset is a sample of 948 individuals from a public school with math, reading, and writing test scores (ranging from 0-100) and the following variables of interest: gender, ethnic group, parental education, lunch type, test prep, parent's marital status, sports participation, first child, number of siblings, means of transportation to school, number of weekly study hours. Due to significant missing data, we imputed the missing values with the average or most common value per variable.
 
@@ -63,37 +65,32 @@ data_cleaned <- data.frame(apply(data, 2, function(x) ifelse(is.na(x), names(sor
 
 ```
 
-```{r, message = F, warning = F, echo = F}
-table1 <- 
-tbl_summary(data_cleaned,
-            statistic = list(all_continuous() ~ "{mean} ({sd})",
-                   all_categorical() ~ "{n} / {N} ({p}%)"),
-            type = "NrSiblings" ~ "continuous") %>%
-  modify_caption("**Table 1. Overall Characteristics**")
-
-table1 %>% as_flex_table()
-```
 
 After looking at the histograms of the continuous outcomes, we decided that the variables looked fairly normal so we did not use log transformations.
 
-We employed a multi-faceted approach to model building. Initially, we fit simple linear regression models for each of the three scores, utilizing all available covariates in our dataset. Subsequently, we conducted a comprehensive exploration by implementing backward, forward, and stepwise regression techniques. This allowed us to assess how variables varied when adjusting for all covariates through multiple linear regression modeling. The combination of these methods provided a nuanced understanding of the relationships between predictors and scores, capturing both individual and collective effects.
+We employed a multi-faceted approach to model building. Initially, we fit simple linear regression (SLR) models for each of the three scores, utilizing all available covariates in our dataset. Subsequently, we conducted a comprehensive exploration by implementing backward, forward, and stepwise regression techniques using p-values, AIC, and BIC as the criterion of interest. We also fit models using the Adjusted R^2 criterion-based approach. This allowed us to assess how variables varied when adjusting for all covariates through multiple linear regression modeling. The combination of these methods provided a nuanced understanding of the relationships between predictors and scores, capturing both individual and collective effects. The optimal models were determined by maximizing the Adjusted R^2, which penalizes the measure as the number of predictors increase. This helps to ensure we choose a better tradeoff between bias and variance.
 
-The chosen model was then tested through model diagnostics and influential observation diagnostics to make sure all assumptions are met and no significant outliers were influencing the model.
+The chosen models were then tested through model diagnostics and influential observation diagnostics to make sure all linear assumptions are met and no significant outliers were influencing the model. 
 
 ## Results
 
 From the SLR model, we found that the linear association between MathScore and the predictors LunchType, Gender, TestPrep and WklyStudyHours were significant. The average increase in MathScore was 8.7216 (p=3e-09) for students of ethnic group B and 3.4986 (p=0.00759) for students of ethnic group C compared to students of ethnic group A without adjusting for all other covariates. The average increase in MathScore between students with parents with some high school education and students with parents who completed their high school education was 6.0952 (p=0.000139) without adjusting for all other covariates. The average decrease in MathScore between students with parents with some high school education and students with parents who have their Master's degree was 2.8793 (p=0.009353) without adjusting for all other covariates. The average increase in MathScore between students with divorced parents and students with married parents was 4.142 (p=0.040) without adjusting for all other covariates. The average decrease in MathScore was 3.6763 (p=0.041) for students with 1 sibling and 3.8757 (p=0.0390) for students with 2 siblings compared to only children without adjusting for all other covariates. Note that the linear association between MathScore and PracticeSport, IsFirstChild, and TransportMeans were not significant.
 
-After fitting a MLR using forwards, backwards and stepwise regression model building methods, we noticed that the linear association between MathScore and EthnicGroup, ParentEduc, ParentMaritalStatus, PracticeSport and IsFirstChild became significant after adjusting for all other covariates. Note that the linear association between MathScore and LunchType, Gender, TestPrep and WklyStudyHours were still significant after adjusting for all other covariates. Therefore, for Mathscore as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours. Our estimates for coefficients for each of our significant covariates associated with MathScore are located in our Appendix in Table 2, 3 and 4. Note that each of the three methods selected the same results.
+We fit several Multivariate Linear Regressions (MLR) using a variety of predictor selection techniques. First, we fit the MLR models using backwards, forwards, and stepwise regression with p-values, AIC, and BIC as the criterion of interest. Next, we fit the MLR models using the Adjusted R^2 criterion method, which penalizes the R^2 as the number of predictors increases. In order to determine the best models of best fit, we chose the models with the highest Adjusted R^2 value. For Math Score as the outcome, the optimal model contained Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours as predictors. For Reading Score as the outcome, the optimal model contained Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, NrSiblings, TransportMeans, and WklyStudyHours as predictors. For Writing score as the outcome, the optimal model contained Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours as predictors. 
 
-```{r, warning = F, message = F, eval = F, echo = F}
+Model diagnosis is an essential step in the modeling process. The models need to be checked through visual and statistical tests to make sure all assumptions are met. Diagnostics of the final models looked good, and we determined that the residual plots looked normal enough to safely consider our results valid. In addition to model diagnostics, we looked for the presence of influential observations using Cook's distance. We determined that there was no presence of worrisome influential observations in the three final models.
+
+Our estimates for coefficients for each of our significant covariates associated with Math Score, Reading Score, and Writing Score are located in our Tables section in Tables 2, 3 and 4.
+
+
+```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Math
 # Backwards stepwise regression
 math_full <- lm(MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
 step(math_full, direction = "backward")
 ```
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 # Math
 math_back <- lm(formula = MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + 
      TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
@@ -108,17 +105,13 @@ math_back %>%
   kableExtra::kable(caption = "Table 2. Math score stepwise model")
 ```
 
-From the SLR model, we found that the linear association between ReadingScore and the predictors LunchType, Gender, TestPrep and IsFirstChild were significant. The average increase in ReadingScore between students of ethnic group A and ethnic group B was 5.95373 (p=2.64e-05) without adjusting for all other covariates. The average increase in ReadingScore between students with parents with some high school education and students with parents who completed their high school education was 8.2312 (p=5.85e-08) without adjusting for all other covariates. The average decrease in ReadingScore between students with parents with some high school education and students with parents who have their Master's degree was 3.5466 (p=0.000717) without adjusting for all other covariates. The average increase in ReadingScore between students with divorced parents and students with married parents was 3.965 (p=0.039) without adjusting for all other covariates. The average increase in ReadingScore between students who studied less than 5 hours and students who studied 10-May was 2.6298 (p=0.0194) without adjusting for all other covariates. The average difference in ReadingScore between students who studied less than 5 hours and students who studied greater than 10 hours was insignificant (p=0.0541) without adjusting for all other covariates. Note that the linear association between ReadingScore and PracticeSport, NrSiblings, and TransportMeans were not significant.
-
-After fitting a MLR using forwards, backwards and stepwise regression model building methods, we noticed that the linear association between ReadingScore and EthnicGroup, ParentEduc, ParentMaritalStatus and WklyStudyHours became significant after adjusting for all other covariates. Note that the linear association between ReadingScore and Gender, LunchType, TestPrep and IsFirstChild were still significant after adjusting for all other covariates. Note that each of the three methods selected the same results. Therefore, for ReadingScore as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, IsFirstChild, and WklyStudyHours.
-
-```{r, warning = F, message = F, echo = F, eval = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Reading
 # Backwards stepwise regression
 reading_full <- lm(ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
 ```
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 # Reading
 reading_back <- lm(formula = ReadingScore ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours, 
@@ -133,14 +126,6 @@ reading_back %>%
   kableExtra::kable(caption = "Table 3. Reading score stepwise model")
 ```
 
-For writing score as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours.
-
-Model diagnosis is an essential step in the modeling process. The models need to be checked through visual and statistical tests to make sure all assumptions are met. Through this process, we could evaluate if the models we fit well represented our study.
-
-```{r, warning = F, message = F, echo = F}
-plot(math_back)
-```
-
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Writing
 # Backwards stepwise regression
@@ -148,7 +133,7 @@ writing_full <- lm (WritingScore ~ ., data = data_cleaned %>% select(-c(MathScor
 step(writing_full, direction = "backward")
 ```
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 # Writing
 writing_back <- lm(formula = WritingScore ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
@@ -163,7 +148,8 @@ writing_back %>%
   kableExtra::kable(caption = "Writing score stepwise model")
 ```
 
-\\
+
+
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Math
@@ -188,7 +174,7 @@ math_for %>%
   kableExtra::kable(caption = "Math score forwards stepwise model")
 ```
 
-\
+
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Reading
@@ -212,7 +198,7 @@ reading_for %>%
   kableExtra::kable(caption = "Reading score forwards stepwise model")
 ```
 
-\
+
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Writing
@@ -237,7 +223,7 @@ writing_for %>%
   kableExtra::kable(caption = "Writing score forwards stepwise model")
 ```
 
-\\
+
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Math
@@ -262,7 +248,7 @@ math_both %>%
   kableExtra::kable(caption = "Math score stepwise model")
 ```
 
-\
+
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Reading
@@ -286,7 +272,7 @@ reading_both %>%
   kableExtra::kable(caption = "Reading score stepwise model")
 ```
 
-\
+
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Writing
@@ -311,10 +297,9 @@ writing_both %>%
   kableExtra::kable(caption = "Writing score stepwise model")
 ```
 
-\\
 
 
-```{r p-values, echo = F, warning = F, message = F, results='hide'}
+```{r p-values math, echo = F, warning = F, message = F, results='hide'}
 ## Math
 math_full <- lm(MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
 
@@ -332,7 +317,7 @@ math_pval_both <- lm(MathScore ~ LunchType + TestPrep + EthnicGroup + Gender + P
                      data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
 ```
 
-```{r p-values, echo = F, warning = F, message = F, results='hide'}
+```{r p-values reading, echo = F, warning = F, message = F, results='hide'}
 ## Reading
 reading_full <- lm(ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
 
@@ -351,7 +336,7 @@ reading_pval_both <- lm(ReadingScore ~ Gender + LunchType + TestPrep + ParentEdu
                     data = data_cleaned %>% select(-c(MathScore, WritingScore))) 
 ```
 
-```{r p-values, echo = F, warning = F, message = F, results='hide'}
+```{r p-values writing, echo = F, warning = F, message = F, results='hide'}
 ## Writing
 writing_full <- lm(WritingScore ~ ., data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
 
@@ -370,9 +355,9 @@ writing_pval_both <- lm(WritingScore ~ TestPrep + Gender + LunchType + ParentEdu
                     data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as forward
 ```
 
-\\
 
-```{r BIC, warning = F, message = F, echo = F, results='hide'}
+
+```{r BIC math, warning = F, message = F, echo = F, results='hide'}
 # Math
 stepwise(math_full, direction = "backward", criterion = "BIC") # labels it as AIC but it's BIC
 math_BIC_back <- lm(MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep, 
@@ -387,7 +372,7 @@ math_BIC_both <- lm(MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + 
                     data = data_cleaned %>% select(-c(ReadingScore, WritingScore))) # same as backward & forward
 ```
 
-```{r BIC, warning = F, message = F, echo = F, results='hide'}
+```{r BIC reading, warning = F, message = F, echo = F, results='hide'}
 # Reading
 stepwise(reading_full, direction = "backward", criterion = "BIC") # labels it as AIC but it's BIC
 reading_BIC_back <- lm(ReadingScore ~ Gender + ParentEduc + LunchType + TestPrep, 
@@ -402,7 +387,7 @@ reading_BIC_both <- lm(ReadingScore ~ Gender + ParentEduc + LunchType + TestPrep
                     data = data_cleaned %>% select(-c(MathScore, WritingScore))) # same as backward and forward
 ```
 
-```{r BIC, warning = F, message = F, echo = F, results='hide'}
+```{r BIC writing, warning = F, message = F, echo = F, results='hide'}
 # Writing
 stepwise(writing_full, direction = "backward", criterion = "BIC") # labels it as AIC but it's BIC
 writing_BIC_back <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep, 
@@ -418,9 +403,8 @@ writing_BIC_both <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchT
 ```
 
 
-\\
 
-```{r adj R2, echo = F, results = "hide", message= F, warning=F}
+```{r adj R2 math, echo = F, results = "hide", message= F, warning=F}
 # Math
 ss <- regsubsets(MathScore ~ .,
                data = data_cleaned %>% select(-c(WritingScore, ReadingScore)),
@@ -437,7 +421,7 @@ math_adjR2 <- lm(MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + Tes
                  data = data_cleaned %>% select(-c(WritingScore, ReadingScore)))
 ```
 
-```{r adj R2, echo = F, results = "hide", message= F, warning=F}
+```{r adj R2 writing, echo = F, results = "hide", message= F, warning=F}
 # Writing
 ss_wr <- regsubsets(WritingScore ~ .,
                data = data_cleaned %>% select(-c(MathScore, ReadingScore)),
@@ -454,7 +438,7 @@ writing_adjR2 <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType
                  data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as math
 ```
 
-```{r adj R2, echo = F, results = "hide", message= F, warning=F}
+```{r adj R2 reading, echo = F, results = "hide", message= F, warning=F}
 # Reading
 ss_read <- regsubsets(ReadingScore ~ .,
                data = data_cleaned %>% select(-c(WritingScore, MathScore)),
@@ -471,9 +455,7 @@ reading_adjR2 <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType
                  data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as math & writing
 ```
 
-\\
 
-\\
 
 
 ```{r all models, eval = F, results = "hide", echo = F, message=F, warning=F}
@@ -542,14 +524,119 @@ reading_adjR2
 # Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours
 ```
 
-```{r comparisons}
+```{r comparisons, echo = F, results='hide', warning=FALSE, error=F}
+mod1 = math_both %>% glance() %>% mutate(outcome = "Math", model = "AIC Stepwise (all)")
+mod2 = writing_both %>% glance() %>% mutate(outcome = "Writing", model = "AIC Stepwise (all)")
+mod3 = reading_both %>% glance() %>% mutate(outcome = "Reading", model = "AIC Stepwise (all)")
 
+mod4 = math_BIC_both %>% glance() %>% mutate(outcome = "Math", model = "BIC Stepwise (all)")
+mod5 = writing_BIC_both %>% glance() %>% mutate(outcome = "Writing", model = "BIC Stepwise (all)")
+mod6 = reading_BIC_both %>% glance() %>% mutate(outcome = "Reading", model = "BIC Stepwise (all)")
+
+mod7 = math_pval_back %>% glance() %>% mutate(outcome = "Math", model = "P-value Backwards Stepwise")
+mod8 = math_pval_for %>% glance() %>% mutate(outcome = "Math", model = "P-value Forwards Stepwise")
+mod9 = math_pval_both %>% glance() %>% mutate(outcome = "Math", model = "P-value Both Stepwise")
+mod10 = writing_pval_back %>% glance() %>% mutate(outcome = "Writing", model = "P-value Backwards Stepwise")
+mod11 = writing_pval_for %>% glance() %>% mutate(outcome = "Writing", model = "P-value Forwards Stepwise")
+mod12 = writing_pval_both %>% glance() %>% mutate(outcome = "Writing", model = "P-value Both Stepwise")
+mod13 = reading_pval_back %>% glance() %>% mutate(outcome = "Reading", model = "P-value Backwards Stepwise")
+mod14 = reading_pval_for %>% glance() %>% mutate(outcome = "Reading", model = "P-value Forwards Stepwise")
+mod15 = reading_pval_both %>% glance() %>% mutate(outcome = "Reading", model = "P-value Both Stepwise")
+
+mod16 = math_adjR2 %>% glance() %>% mutate(outcome = "Math", model = "Adjusted R2 criterion")
+mod17 = writing_adjR2 %>% glance() %>% mutate(outcome = "Writing", model = "Adjusted R2 criterion")
+mod18 = reading_adjR2 %>% glance() %>% mutate(outcome = "Reading", model = "Adjusted R2 criterion")
+
+allmods <- bind_rows(mod1, mod2, mod3, mod4, mod5, mod6, mod7, mod8, mod9, mod10, mod11, mod12, mod13, mod14, mod15, mod16, mod17, mod18)
+
+allmods %>%
+  arrange(desc(adj.r.squared)) %>%
+  select(adj.r.squared, outcome, model)
+```
+
+
+
+```{r diagnostics, echo = F, results= "hide", eval = F}
+## Diagnostics
+# Writing: AIC stepwise (same as p-val forwards and p-value both stepwise)
+plot(writing_both)
+
+# Reading: Adjusted R2 criterion
+plot(reading_adjR2)
+
+# Math: P-val forwards stepwise
+plot(math_pval_for)
 ```
 
 
 ## Conclusions/Discussion
 
+__insert__
+
+
+## Tables
+
+```{r, message = F, warning = F, echo = F}
+table1 <- 
+tbl_summary(data_cleaned,
+            statistic = list(all_continuous() ~ "{mean} ({sd})",
+                   all_categorical() ~ "{n} / {N} ({p}%)"),
+            type = "NrSiblings" ~ "continuous") %>%
+  modify_caption("**Table 1. Overall Characteristics**")
+
+table1 %>% as_flex_table()
+```
+
+\
+
+
+```{r, echo = F}
+writing_both %>%
+  broom::tidy() %>%
+  dplyr::select(term, estimate, p.value) %>%
+  mutate(estimate = round(estimate, 3),
+         p.value = round(p.value, 3),
+         p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
+  kableExtra::kable(caption = "Table 2. Writing Score Final Model")
+```
+
+\
+
+```{r, echo = F}
+reading_adjR2 %>%
+  broom::tidy() %>%
+  dplyr::select(term, estimate, p.value) %>%
+  mutate(estimate = round(estimate, 3),
+         p.value = round(p.value, 3),
+         p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
+  kableExtra::kable(caption = "Table 3. Reading Score Final Model")
+```
+
+\
+
+```{r, echo = F}
+math_pval_for %>%
+  broom::tidy() %>%
+  dplyr::select(term, estimate, p.value) %>%
+  mutate(estimate = round(estimate, 3),
+         p.value = round(p.value, 3),
+         p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
+  kableExtra::kable(caption = "Table 4. Math Score Final Model")
+```
+
+
+## Appendix
+
+Insert Lasso and RF?
+
+
 
 ## A brief summary on each group member's contribution (method, data analysis, writing, etc).
 
+Ekaterina wrote the abstract, introduction and parts of the results, conducted the MLR modeling, and created Tables 1-4.
 
+Yuki did __insert__
+
+Arthur did __insert__
+
+Lauren did __insert__
