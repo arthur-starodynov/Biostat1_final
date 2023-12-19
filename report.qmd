@@ -30,6 +30,10 @@ library(gridExtra)
 library(gtsummary)
 library(flextable)
 library(broom)
+library(olsrr)
+library(RcmdrMisc)
+library(leaps)
+library(ISLR)
 ```
 
 ```{r, read data, message = F, warning = F, echo = F}
@@ -137,7 +141,7 @@ Model diagnosis is an essential step in the modeling process. The models need to
 plot(math_back)
 ```
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Writing
 # Backwards stepwise regression
 writing_full <- lm (WritingScore ~ ., data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
@@ -161,7 +165,7 @@ writing_back %>%
 
 \\
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Math
 # Forwards stepwise regression
 math_full <- lm(MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
@@ -169,7 +173,7 @@ math_int <- lm(MathScore ~ 1, data = data_cleaned %>% select(-c(ReadingScore, Wr
 step(math_int, direction = "forward", scope = formula(math_full))
 ```
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 # Math
 math_for <- lm(formula = MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + 
      TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
@@ -186,7 +190,7 @@ math_for %>%
 
 \
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Reading
 # Forwards stepwise regression
 reading_full <- lm(ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
@@ -194,7 +198,7 @@ reading_int <- lm(ReadingScore ~ 1, data = data_cleaned %>% select(-c(MathScore,
 step(reading_int, direction = "forward", scope = formula(reading_full))
 ```
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 reading_for <- lm(formula = ReadingScore ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours, 
    data = data_cleaned %>% select(-c(MathScore, WritingScore))) # (comes from step() above)
@@ -210,7 +214,7 @@ reading_for %>%
 
 \
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Writing
 # Forwards stepwise regression
 writing_full <- lm (WritingScore ~ ., data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
@@ -218,7 +222,7 @@ writing_int <- lm (WritingScore ~ 1, data = data_cleaned %>% select(-c(MathScore
 step(writing_int, direction = "forward", scope = formula(writing_full))
 ```
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 # Writing
 writing_for <- lm(formula = WritingScore ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
@@ -235,7 +239,7 @@ writing_for %>%
 
 \\
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Math
 # stepwise regression
 math_full <- lm(MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
@@ -243,7 +247,7 @@ math_int <- lm(MathScore ~ 1, data = data_cleaned %>% select(-c(ReadingScore, Wr
 step(math_int, direction = "both", scope = formula(math_full))
 ```
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 # Math
 math_both <- lm(formula = MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + 
      TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
@@ -260,7 +264,7 @@ math_both %>%
 
 \
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Reading
 # stepwise regression
 reading_full <- lm(ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
@@ -268,7 +272,7 @@ reading_int <- lm(ReadingScore ~ 1, data = data_cleaned %>% select(-c(MathScore,
 step(reading_int, direction = "both", scope = formula(reading_full))
 ```
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 reading_both <- lm(formula = ReadingScore ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours, 
    data = data_cleaned %>% select(-c(MathScore, WritingScore))) # (comes from step() above)
@@ -284,7 +288,7 @@ reading_both %>%
 
 \
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Writing
 # stepwise regression
 writing_full <- lm (WritingScore ~ ., data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
@@ -292,7 +296,7 @@ writing_int <- lm (WritingScore ~ 1, data = data_cleaned %>% select(-c(MathScore
 step(writing_int, direction = "both", scope = formula(writing_full))
 ```
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = F, message = F, echo = F, results = "hide"}
 # Writing
 writing_both <- lm(formula = WritingScore ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
@@ -307,6 +311,245 @@ writing_both %>%
   kableExtra::kable(caption = "Writing score stepwise model")
 ```
 
+\\
+
+
+```{r p-values, echo = F, warning = F, message = F, results='hide'}
+## Math
+math_full <- lm(MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+
+ols_step_forward_p(math_full)
+math_pval_for <- lm(MathScore ~ LunchType + TestPrep + EthnicGroup + Gender + ParentEduc + 
+                      WklyStudyHours + ParentMaritalStatus + IsFirstChild + PracticeSport + NrSiblings, 
+                    data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+
+ols_step_backward_p(math_full)
+math_pval_back <- lm(MathScore ~ TransportMeans, data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+
+ols_step_both_p(math_full)
+math_pval_both <- lm(MathScore ~ LunchType + TestPrep + EthnicGroup + Gender + ParentEduc + WklyStudyHours +
+                       ParentMaritalStatus + IsFirstChild + PracticeSport, 
+                     data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+```
+
+```{r p-values, echo = F, warning = F, message = F, results='hide'}
+## Reading
+reading_full <- lm(ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
+
+ols_step_forward_p(reading_full)
+reading_pval_for <- lm(ReadingScore ~ Gender + LunchType + TestPrep + ParentEduc + EthnicGroup + 
+                         ParentMaritalStatus + IsFirstChild + WklyStudyHours + TransportMeans, 
+                    data = data_cleaned %>% select(-c(MathScore, WritingScore)))
+
+ols_step_backward_p(reading_full)
+reading_pval_back <- lm(ReadingScore ~ NrSiblings + PracticeSport, 
+                    data = data_cleaned %>% select(-c(MathScore, WritingScore)))
+
+ols_step_both_p(reading_full)
+reading_pval_both <- lm(ReadingScore ~ Gender + LunchType + TestPrep + ParentEduc + EthnicGroup + 
+                         ParentMaritalStatus + IsFirstChild + WklyStudyHours, 
+                    data = data_cleaned %>% select(-c(MathScore, WritingScore))) 
+```
+
+```{r p-values, echo = F, warning = F, message = F, results='hide'}
+## Writing
+writing_full <- lm(WritingScore ~ ., data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
+
+ols_step_forward_p(writing_full)
+writing_pval_for <- lm(WritingScore ~ TestPrep + Gender + LunchType + ParentEduc + EthnicGroup + 
+                         ParentMaritalStatus + IsFirstChild + PracticeSport + WklyStudyHours, 
+                    data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
+
+ols_step_backward_p(writing_full)
+writing_pval_back <- lm(WritingScore ~ NrSiblings + TransportMeans, 
+                    data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
+
+ols_step_both_p(writing_full)
+writing_pval_both <- lm(WritingScore ~ TestPrep + Gender + LunchType + ParentEduc + EthnicGroup + 
+                         ParentMaritalStatus + IsFirstChild + PracticeSport + WklyStudyHours, 
+                    data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as forward
+```
+
+\\
+
+```{r BIC, warning = F, message = F, echo = F, results='hide'}
+# Math
+stepwise(math_full, direction = "backward", criterion = "BIC") # labels it as AIC but it's BIC
+math_BIC_back <- lm(MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep, 
+                    data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+
+stepwise(math_full, direction = "forward", criterion = "BIC") 
+math_BIC_for <- lm(MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep, 
+                    data = data_cleaned %>% select(-c(ReadingScore, WritingScore))) # same as backward
+
+stepwise(math_full, direction = "forward/backward", criterion = "BIC") 
+math_BIC_both <- lm(MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep, 
+                    data = data_cleaned %>% select(-c(ReadingScore, WritingScore))) # same as backward & forward
+```
+
+```{r BIC, warning = F, message = F, echo = F, results='hide'}
+# Reading
+stepwise(reading_full, direction = "backward", criterion = "BIC") # labels it as AIC but it's BIC
+reading_BIC_back <- lm(ReadingScore ~ Gender + ParentEduc + LunchType + TestPrep, 
+                    data = data_cleaned %>% select(-c(MathScore, WritingScore)))
+
+stepwise(reading_full, direction = "forward", criterion = "BIC") 
+reading_BIC_for <- lm(ReadingScore ~ Gender + ParentEduc + LunchType + TestPrep, 
+                    data = data_cleaned %>% select(-c(MathScore, WritingScore))) # same as backward
+
+stepwise(reading_full, direction = "forward/backward", criterion = "BIC") 
+reading_BIC_both <- lm(ReadingScore ~ Gender + ParentEduc + LunchType + TestPrep, 
+                    data = data_cleaned %>% select(-c(MathScore, WritingScore))) # same as backward and forward
+```
+
+```{r BIC, warning = F, message = F, echo = F, results='hide'}
+# Writing
+stepwise(writing_full, direction = "backward", criterion = "BIC") # labels it as AIC but it's BIC
+writing_BIC_back <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep, 
+                    data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
+
+stepwise(writing_full, direction = "forward", criterion = "BIC") 
+writing_BIC_for <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep, 
+                    data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as backward
+
+stepwise(writing_full, direction = "forward/backward", criterion = "BIC") 
+writing_BIC_both <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep, 
+                    data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as backward & forward
+```
+
+
+\\
+
+```{r adj R2, echo = F, results = "hide", message= F, warning=F}
+# Math
+ss <- regsubsets(MathScore ~ .,
+               data = data_cleaned %>% select(-c(WritingScore, ReadingScore)),
+               nbest = 1,       # 1 best model for each number of predictors
+               nvmax = NULL,    # NULL for no limit on number of variables
+               force.in = NULL, force.out = NULL,
+               method = "exhaustive")
+summary.out <- summary(ss)
+which.max(summary.out$adjr2)
+summary.out$which[16,]
+
+math_adjR2 <- lm(MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + 
+                   PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours, 
+                 data = data_cleaned %>% select(-c(WritingScore, ReadingScore)))
+```
+
+```{r adj R2, echo = F, results = "hide", message= F, warning=F}
+# Writing
+ss_wr <- regsubsets(WritingScore ~ .,
+               data = data_cleaned %>% select(-c(MathScore, ReadingScore)),
+               nbest = 1,       # 1 best model for each number of predictors
+               nvmax = NULL,    # NULL for no limit on number of variables
+               force.in = NULL, force.out = NULL,
+               method = "exhaustive")
+
+summary.out <- summary(ss_wr)
+which.max(summary.out$adjr2)
+summary.out$which[16,]
+writing_adjR2 <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + 
+                   PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours, 
+                 data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as math
+```
+
+```{r adj R2, echo = F, results = "hide", message= F, warning=F}
+# Reading
+ss_read <- regsubsets(ReadingScore ~ .,
+               data = data_cleaned %>% select(-c(WritingScore, MathScore)),
+               nbest = 1,       # 1 best model for each number of predictors
+               nvmax = NULL,    # NULL for no limit on number of variables
+               force.in = NULL, force.out = NULL,
+               method = "exhaustive")
+
+summary.out <- summary(ss_read)
+which.max(summary.out$adjr2)
+summary.out$which[16,]
+reading_adjR2 <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + 
+                   PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours, 
+                 data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as math & writing
+```
+
+\\
+
+\\
+
+
+```{r all models, eval = F, results = "hide", echo = F, message=F, warning=F}
+## List of our models:
+## AIC (same for each outcome)
+math_back
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport +IsFirstChild + WklyStudyHours
+writing_back 
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours
+reading_back 
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + IsFirstChild +  WklyStudyHours
+
+math_for
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport +IsFirstChild + WklyStudyHours
+writing_for
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport +IsFirstChild + WklyStudyHours
+reading_for
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours
+
+math_both
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours
+writing_both
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport +IsFirstChild + WklyStudyHours
+reading_both
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours
+
+
+## BIC
+math_BIC_back # Gender + EthnicGroup + ParentEduc + LunchType + TestPrep
+writing_BIC_back # Gender + EthnicGroup + ParentEduc + LunchType + TestPrep
+reading_BIC_back # Gender + ParentEduc + LunchType + TestPrep
+
+math_BIC_for # Gender + EthnicGroup + ParentEduc + LunchType + TestPrep
+writing_BIC_for # Gender + EthnicGroup + ParentEduc + LunchType + TestPrep
+reading_BIC_for # Gender + ParentEduc + LunchType + TestPrep
+
+math_BIC_both # Gender + EthnicGroup + ParentEduc + LunchType + TestPrep
+writing_BIC_both # Gender + EthnicGroup + ParentEduc + LunchType + TestPrep
+reading_BIC_both # Gender + ParentEduc + LunchType + TestPrep
+
+## P-values
+math_pval_back # TransportMeans
+writing_pval_back # NrSiblings + TransportMeans
+reading_pval_back # NrSiblings + PracticeSport
+
+math_pval_for 
+# LunchType + TestPrep + EthnicGroup + Gender + ParentEduc + WklyStudyHours + ParentMaritalStatus + IsFirstChild + PracticeSport + NrSiblings
+writing_pval_for 
+# TestPrep + Gender + LunchType + ParentEduc + EthnicGroup + ParentMaritalStatus + IsFirstChild + PracticeSport + WklyStudyHours
+reading_pval_for
+# Gender + LunchType + TestPrep + ParentEduc + EthnicGroup + ParentMaritalStatus + IsFirstChild + WklyStudyHours + TransportMeans
+
+math_pval_both 
+# LunchType + TestPrep + EthnicGroup + Gender + ParentEduc + WklyStudyHours + ParentMaritalStatus + IsFirstChild + PracticeSport
+writing_pval_both 
+# TestPrep + Gender + LunchType + ParentEduc + EthnicGroup + ParentMaritalStatus + IsFirstChild + PracticeSport + WklyStudyHours
+reading_pval_both
+# Gender + LunchType + TestPrep + ParentEduc + EthnicGroup + ParentMaritalStatus + IsFirstChild + WklyStudyHours
+
+## Adjusted R^2, (all same for each outcome)
+math_adjR2 
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours
+writing_adjR2
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours
+reading_adjR2
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours
+```
+
+```{r comparisons}
+
+```
+
+
 ## Conclusions/Discussion
 
+
 ## A brief summary on each group member's contribution (method, data analysis, writing, etc).
+
+
