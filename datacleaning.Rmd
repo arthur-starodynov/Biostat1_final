@@ -69,16 +69,106 @@ order_parent_educ_categories <- c('some high school', 'high school', "associate'
 
 order_ethnic_categories <- c('group A', 'group B', 'group C', 'group D', 'group E')
 
+study_categories <- c('< 5', '5-10', '> 10')
+
 data_cleaned <- data_cleaned %>% 
   mutate(Gender = as.factor(Gender), 
          MathScore = as.integer(MathScore), 
          ReadingScore = as.integer(ReadingScore), 
          WritingScore = as.integer(WritingScore),
          ParentEduc = factor(ParentEduc, levels = order_parent_educ_categories, ordered = TRUE), 
-         EthnicGroup = factor(EthnicGroup, levels = order_ethnic_categories, ordered = TRUE))
+         EthnicGroup = factor(EthnicGroup, levels = order_ethnic_categories, ordered = TRUE)) %>% 
+  mutate(ln_math = log(MathScore), 
+         ln_reading = log(ReadingScore), 
+         ln_writing = log(WritingScore))
 
+model_1 <- lm(ReadingScore ~ LunchType, data = data_cleaned)
+summary(model_1)
+
+model_2 <- lm(ReadingScore ~ EthnicGroup, data = data_cleaned)
+summary(model_2)
+
+model_3 <- lm(ReadingScore ~ ParentEduc, data = data_cleaned)
+summary(model_3)
+
+model_4 <- lm(ReadingScore ~ Gender, data = data_cleaned)
+summary(model_4)
+
+model_5 <- lm(ReadingScore ~ TestPrep, data = data_cleaned)
+summary(model_5)
+
+model_6 <- lm(ReadingScore ~ ParentMaritalStatus, data = data_cleaned)
+summary(model_6)
+
+model_7 <- lm(ReadingScore ~ PracticeSport, data = data_cleaned)
+summary(model_7)
+
+model_8 <- lm(ReadingScore ~ IsFirstChild, data = data_cleaned)
+summary(model_8)
+
+model_9 <- lm(ReadingScore ~ NrSiblings, data = data_cleaned)
+summary(model_9)
+
+model_10 <- lm(ReadingScore ~ WklyStudyHours, data = data_cleaned)
+summary(model_10)
+
+model_11 <- lm(ReadingScore ~ TransportMeans, data = data_cleaned)
+summary(model_11)
+
+model_1 <- lm(MathScore ~ LunchType, data = data_cleaned)
+summary(model_1)
+
+model_2 <- lm(MathScore ~ EthnicGroup, data = data_cleaned)
+summary(model_2)
+
+model_3 <- lm(MathScore ~ ParentEduc, data = data_cleaned)
+summary(model_3)
+
+model_4 <- lm(MathScore ~ Gender, data = data_cleaned)
+summary(model_4)
+
+model_5 <- lm(MathScore ~ TestPrep, data = data_cleaned)
+summary(model_5)
+
+model_6 <- lm(MathScore ~ ParentMaritalStatus, data = data_cleaned)
+summary(model_6)
+
+model_7 <- lm(MathScore ~ PracticeSport, data = data_cleaned)
+summary(model_7)
+
+model_8 <- lm(MathScore ~ IsFirstChild, data = data_cleaned)
+summary(model_8)
+
+model_9 <- lm(MathScore ~ NrSiblings, data = data_cleaned)
+summary(model_9)
+
+model_10 <- lm(MathScore ~ WklyStudyHours, data = data_cleaned)
+summary(model_10)
+
+model_11 <- lm(MathScore ~ TransportMeans, data = data_cleaned)
+summary(model_11)
 ```
 
+```{r}
+# Create a ggplot for the distribution of MathScore
+plot_math <- ggplot(data_cleaned, aes(x = ln_math)) +
+  geom_histogram(fill = "skyblue", color = "black", bins = 50) +
+  labs(title = "Distribution of MathScore", x = "Score")
+
+# Create a ggplot for the distribution of ReadingScore
+plot_reading <- ggplot(data_cleaned, aes(x = ln_reading)) +
+  geom_histogram(fill = "lightcoral", color = "black", bins = 50) +
+  labs(title = "Distribution of ReadingScore", x = "Score")
+
+# Create a ggplot for the distribution of WritingScore
+plot_writing <- ggplot(data_cleaned, aes(x = ln_writing)) +
+  geom_histogram(fill = "lightgreen", color = "black", bins = 50) +
+  labs(title = "Distribution of WritingScore", x = "Score")
+
+grid.arrange(plot_math, plot_reading, plot_writing, ncol = 3)
+
+ggtitle("Distribution of the ln test scores")
+```
 
 Gender
 

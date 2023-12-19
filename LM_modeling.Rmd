@@ -436,9 +436,4 @@ plot(val.preds.rf, pred.data.validation$WritingScore,
 ```
 
 
-
-
-
-
-
 We can conclude that the most important variables runnning the random forest model for prediction was the Test Prep category to sort the means the of the test scores.

@@ -78,11 +78,15 @@ The chosen model was then tested through model diagnostics and influential obser
 
 ## Results
 
-In order to predict test score from our variables of interest, we decided to use backwards, forwards, and stepwise regression using Aikake's Information Criteria (AIC) as the criteria. Each of the three methods selected the same results for each outcome. 
+From the SLR model, we found that the linear association between MathScore and the predictors LunchType, Gender, TestPrep and WklyStudyHours were significant. The average increase in MathScore was 8.7216 (p=3e-09) for students of ethnic group B and 3.4986 (p=0.00759) for students of ethnic group C compared to students of ethnic group A without adjusting for all other covariates. The average increase in MathScore between students with parents with some high school education and students with parents who completed their high school education was 6.0952 (p=0.000139) without adjusting for all other covariates. The average decrease in MathScore between students with parents with some high school education and students with parents who have their Master's degree was 2.8793 (p=0.009353) without adjusting for all other covariates. The average increase in MathScore between students with divorced parents and students with married parents was 4.142 (p=0.040) without adjusting for all other covariates. The average decrease in MathScore was 3.6763 (p=0.041) for students with 1 sibling and 3.8757 (p=0.0390) for students with 2 siblings compared to only children without adjusting for all other covariates. Note that the linear association between MathScore and PracticeSport, IsFirstChild, and TransportMeans were not significant.
 
-For math score as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport,  IsFirstChild, and WklyStudyHours. For Reading score as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, IsFirstChild, and WklyStudyHours. For writing score as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours.
+From the SLR model, we found that the linear association between ReadingScore and the predictors LunchType, Gender, TestPrep and IsFirstChild were significant. The average increase in ReadingScore between students of ethnic group A and ethnic group B was 5.95373 (p=2.64e-05) without adjusting for all other covariates. The average increase in ReadingScore between students with parents with some high school education and students with parents who completed their high school education was 8.2312 (p=5.85e-08) without adjusting for all other covariates. The average decrease in ReadingScore between students with parents with some high school education and students with parents who have their Master's degree was 3.5466 (p=0.000717) without adjusting for all other covariates. The average increase in ReadingScore between students with divorced parents and students with married parents was 3.965 (p=0.039) without adjusting for all other covariates. The average increase in ReadingScore between students who studied less than 5 hours and students who studied 10-May was 2.6298 (p=0.0194) without adjusting for all other covariates. The average difference in ReadingScore between students who studied less than 5 hours and students who studied greater than 10 hours was insignificant (p=0.0541) without adjusting for all other covariates. Note that the linear association between ReadingScore and PracticeSport, NrSiblings, and TransportMeans were not significant.
 
-```{r, warning = F, message = F, eval=FALSE, echo = F}
+After fitting a MLR using forwards, backwards and stepwise regression model building methods, we noticed that the linear association between ReadingScore and EthnicGroup, ParentEduc, ParentMaritalStatus and WklyStudyHours became significant after adjusting for all other covariates. Note that the linear association between ReadingScore and Gender, LunchType, TestPrep and IsFirstChild were still significant after adjusting for all other covariates. Note that each of the three methods selected the same results. Therefore, for ReadingScore as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, IsFirstChild, and WklyStudyHours.
+
+For math score as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours. The reported AIC for all three of the model building methods we used was 4924.44. For Reading score as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, IsFirstChild, and WklyStudyHours. For writing score as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours.
+
+```{r, warning = F, message = F, echo = F}
 ## Math
 # Backwards stepwise regression
 math_full <- lm(MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
@@ -104,7 +108,7 @@ math_back %>%
   kableExtra::kable(caption = "Table 2. Math score stepwise model")
 ```
 
-```{r, warning = F, message = F, eval=FALSE, echo = F}
+```{r, warning = F, message = F, echo = F}
 ## Reading
 # Backwards stepwise regression
 reading_full <- lm(ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
@@ -127,7 +131,7 @@ reading_back %>%
 
 \
 
-```{r, warning = F, message = F, eval=FALSE, echo = F}
+```{r, warning = F, message = F, echo = F}
 ## Writing
 # Backwards stepwise regression
 writing_full <- lm (WritingScore ~ ., data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
@@ -149,10 +153,9 @@ writing_back %>%
   kableExtra::kable(caption = "Writing score stepwise model")
 ```
 
-
 \\
 
-```{r, warning = F, message = F, eval=FALSE, echo = F}
+```{r, warning = F, message = F, echo = F}
 ## Math
 # Forwards stepwise regression
 math_full <- lm(MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
@@ -160,7 +163,7 @@ math_int <- lm(MathScore ~ 1, data = data_cleaned %>% select(-c(ReadingScore, Wr
 step(math_int, direction = "forward", scope = formula(math_full))
 ```
 
-```{r, warning = F, message = F, echo = F, eval = F}
+```{r, warning = F, message = F, echo = F}
 # Math
 math_for <- lm(formula = MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + 
      TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
@@ -177,7 +180,7 @@ math_for %>%
 
 \
 
-```{r, warning = F, message = F, eval=FALSE, echo = F}
+```{r, warning = F, message = F, echo = F}
 ## Reading
 # Forwards stepwise regression
 reading_full <- lm(ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
@@ -185,7 +188,7 @@ reading_int <- lm(ReadingScore ~ 1, data = data_cleaned %>% select(-c(MathScore,
 step(reading_int, direction = "forward", scope = formula(reading_full))
 ```
 
-```{r, warning = F, message = F, echo = F, eval = F}
+```{r, warning = F, message = F, echo = F}
 reading_for <- lm(formula = ReadingScore ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours, 
    data = data_cleaned %>% select(-c(MathScore, WritingScore))) # (comes from step() above)
@@ -201,7 +204,7 @@ reading_for %>%
 
 \
 
-```{r, warning = F, message = F, eval=FALSE, echo = F}
+```{r, warning = F, message = F, echo = F}
 ## Writing
 # Forwards stepwise regression
 writing_full <- lm (WritingScore ~ ., data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
@@ -209,7 +212,7 @@ writing_int <- lm (WritingScore ~ 1, data = data_cleaned %>% select(-c(MathScore
 step(writing_int, direction = "forward", scope = formula(writing_full))
 ```
 
-```{r, warning = F, message = F, echo = F, eval = F}
+```{r, warning = F, message = F, echo = F}
 # Writing
 writing_for <- lm(formula = WritingScore ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
@@ -226,7 +229,7 @@ writing_for %>%
 
 \\
 
-```{r, warning = F, message = F, eval=FALSE, echo = F}
+```{r, warning = F, message = F, echo = F}
 ## Math
 # stepwise regression
 math_full <- lm(MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
@@ -234,7 +237,7 @@ math_int <- lm(MathScore ~ 1, data = data_cleaned %>% select(-c(ReadingScore, Wr
 step(math_int, direction = "both", scope = formula(math_full))
 ```
 
-```{r, warning = F, message = F, echo = F, eval = F}
+```{r, warning = F, message = F, echo = F}
 # Math
 math_both <- lm(formula = MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + 
      TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
@@ -251,7 +254,7 @@ math_both %>%
 
 \
 
-```{r, warning = F, message = F, eval=FALSE, echo = F}
+```{r, warning = F, message = F, echo = F}
 ## Reading
 # stepwise regression
 reading_full <- lm(ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
@@ -259,7 +262,7 @@ reading_int <- lm(ReadingScore ~ 1, data = data_cleaned %>% select(-c(MathScore,
 step(reading_int, direction = "both", scope = formula(reading_full))
 ```
 
-```{r, warning = F, message = F, echo = F, eval = F}
+```{r, warning = F, message = F, echo = F}
 reading_both <- lm(formula = ReadingScore ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours, 
    data = data_cleaned %>% select(-c(MathScore, WritingScore))) # (comes from step() above)
@@ -275,7 +278,7 @@ reading_both %>%
 
 \
 
-```{r, warning = F, message = F, eval=FALSE, echo = F}
+```{r, warning = F, message = F, echo = F}
 ## Writing
 # stepwise regression
 writing_full <- lm (WritingScore ~ ., data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
@@ -283,7 +286,7 @@ writing_int <- lm (WritingScore ~ 1, data = data_cleaned %>% select(-c(MathScore
 step(writing_int, direction = "both", scope = formula(writing_full))
 ```
 
-```{r, warning = F, message = F, echo = F, eval = F}
+```{r, warning = F, message = F, echo = F}
 # Writing
 writing_both <- lm(formula = WritingScore ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
@@ -297,7 +300,6 @@ writing_both %>%
          p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
   kableExtra::kable(caption = "Writing score stepwise model")
 ```
-
 
 ## Conclusions/Discussion
 
