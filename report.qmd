@@ -33,6 +33,7 @@ library(broom)
 library(olsrr)
 library(RcmdrMisc)
 library(leaps)
+library(ISLR)
 ```
 
 ```{r, read data, message = F, warning = F, echo = F}
@@ -313,7 +314,7 @@ writing_both %>%
 \\
 
 
-```{r p-values, echo = F, warning = F, message = F}
+```{r p-values, echo = F, warning = F, message = F, results='hide'}
 ## Math
 math_full <- lm(MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
 
@@ -331,7 +332,7 @@ math_pval_both <- lm(MathScore ~ LunchType + TestPrep + EthnicGroup + Gender + P
                      data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
 ```
 
-```{r p-values, echo = F, warning = F, message = F}
+```{r p-values, echo = F, warning = F, message = F, results='hide'}
 ## Reading
 reading_full <- lm(ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
 
@@ -350,7 +351,7 @@ reading_pval_both <- lm(ReadingScore ~ Gender + LunchType + TestPrep + ParentEdu
                     data = data_cleaned %>% select(-c(MathScore, WritingScore))) 
 ```
 
-```{r p-values, echo = F, warning = F, message = F}
+```{r p-values, echo = F, warning = F, message = F, results='hide'}
 ## Writing
 writing_full <- lm(WritingScore ~ ., data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
 
@@ -371,7 +372,7 @@ writing_pval_both <- lm(WritingScore ~ TestPrep + Gender + LunchType + ParentEdu
 
 \\
 
-```{r BIC, warning = F, message = F, echo = F}
+```{r BIC, warning = F, message = F, echo = F, results='hide'}
 # Math
 stepwise(math_full, direction = "backward", criterion = "BIC") # labels it as AIC but it's BIC
 math_BIC_back <- lm(MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep, 
@@ -386,7 +387,7 @@ math_BIC_both <- lm(MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + 
                     data = data_cleaned %>% select(-c(ReadingScore, WritingScore))) # same as backward & forward
 ```
 
-```{r BIC, warning = F, message = F, echo = F}
+```{r BIC, warning = F, message = F, echo = F, results='hide'}
 # Reading
 stepwise(reading_full, direction = "backward", criterion = "BIC") # labels it as AIC but it's BIC
 reading_BIC_back <- lm(ReadingScore ~ Gender + ParentEduc + LunchType + TestPrep, 
@@ -401,7 +402,7 @@ reading_BIC_both <- lm(ReadingScore ~ Gender + ParentEduc + LunchType + TestPrep
                     data = data_cleaned %>% select(-c(MathScore, WritingScore))) # same as backward and forward
 ```
 
-```{r BIC, warning = F, message = F, echo = F}
+```{r BIC, warning = F, message = F, echo = F, results='hide'}
 # Writing
 stepwise(writing_full, direction = "backward", criterion = "BIC") # labels it as AIC but it's BIC
 writing_BIC_back <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep, 
@@ -419,7 +420,7 @@ writing_BIC_both <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchT
 
 \\
 
-```{r adj R2}
+```{r adj R2, echo = F, results = "hide", message= F, warning=F}
 # Math
 ss <- regsubsets(MathScore ~ .,
                data = data_cleaned %>% select(-c(WritingScore, ReadingScore)),
@@ -436,7 +437,7 @@ math_adjR2 <- lm(MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + Tes
                  data = data_cleaned %>% select(-c(WritingScore, ReadingScore)))
 ```
 
-```{r adj R2}
+```{r adj R2, echo = F, results = "hide", message= F, warning=F}
 # Writing
 ss_wr <- regsubsets(WritingScore ~ .,
                data = data_cleaned %>% select(-c(MathScore, ReadingScore)),
@@ -453,7 +454,7 @@ writing_adjR2 <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType
                  data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as math
 ```
 
-```{r}
+```{r adj R2, echo = F, results = "hide", message= F, warning=F}
 # Reading
 ss_read <- regsubsets(ReadingScore ~ .,
                data = data_cleaned %>% select(-c(WritingScore, MathScore)),
@@ -470,8 +471,84 @@ reading_adjR2 <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType
                  data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as math & writing
 ```
 
+\\
+
+\\
+
+
+```{r all models, eval = F, results = "hide", echo = F, message=F, warning=F}
+## List of our models:
+## AIC (same for each outcome)
+math_back
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport +IsFirstChild + WklyStudyHours
+writing_back 
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours
+reading_back 
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + IsFirstChild +  WklyStudyHours
+
+math_for
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport +IsFirstChild + WklyStudyHours
+writing_for
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport +IsFirstChild + WklyStudyHours
+reading_for
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours
+
+math_both
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours
+writing_both
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport +IsFirstChild + WklyStudyHours
+reading_both
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours
+
+
+## BIC
+math_BIC_back # Gender + EthnicGroup + ParentEduc + LunchType + TestPrep
+writing_BIC_back # Gender + EthnicGroup + ParentEduc + LunchType + TestPrep
+reading_BIC_back # Gender + ParentEduc + LunchType + TestPrep
+
+math_BIC_for # Gender + EthnicGroup + ParentEduc + LunchType + TestPrep
+writing_BIC_for # Gender + EthnicGroup + ParentEduc + LunchType + TestPrep
+reading_BIC_for # Gender + ParentEduc + LunchType + TestPrep
+
+math_BIC_both # Gender + EthnicGroup + ParentEduc + LunchType + TestPrep
+writing_BIC_both # Gender + EthnicGroup + ParentEduc + LunchType + TestPrep
+reading_BIC_both # Gender + ParentEduc + LunchType + TestPrep
+
+## P-values
+math_pval_back # TransportMeans
+writing_pval_back # NrSiblings + TransportMeans
+reading_pval_back # NrSiblings + PracticeSport
+
+math_pval_for 
+# LunchType + TestPrep + EthnicGroup + Gender + ParentEduc + WklyStudyHours + ParentMaritalStatus + IsFirstChild + PracticeSport + NrSiblings
+writing_pval_for 
+# TestPrep + Gender + LunchType + ParentEduc + EthnicGroup + ParentMaritalStatus + IsFirstChild + PracticeSport + WklyStudyHours
+reading_pval_for
+# Gender + LunchType + TestPrep + ParentEduc + EthnicGroup + ParentMaritalStatus + IsFirstChild + WklyStudyHours + TransportMeans
+
+math_pval_both 
+# LunchType + TestPrep + EthnicGroup + Gender + ParentEduc + WklyStudyHours + ParentMaritalStatus + IsFirstChild + PracticeSport
+writing_pval_both 
+# TestPrep + Gender + LunchType + ParentEduc + EthnicGroup + ParentMaritalStatus + IsFirstChild + PracticeSport + WklyStudyHours
+reading_pval_both
+# Gender + LunchType + TestPrep + ParentEduc + EthnicGroup + ParentMaritalStatus + IsFirstChild + WklyStudyHours
+
+## Adjusted R^2, (all same for each outcome)
+math_adjR2 
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours
+writing_adjR2
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours
+reading_adjR2
+# Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours
+```
+
+```{r comparisons}
+
+```
+
 
 ## Conclusions/Discussion
+
 
 ## A brief summary on each group member's contribution (method, data analysis, writing, etc).
 
