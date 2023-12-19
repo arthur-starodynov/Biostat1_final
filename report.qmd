@@ -1,17 +1,19 @@
 ---
-title: "Final Project Paper"
+title: "P8130 Final Project Paper"
 format: docx
 editor: visual
-author: "Ekaterina Hofrenning, Lauren Lazaro, Arthur Starodynov, Yuki Low"
+author: "Ekaterina Hofrenning (eih2108), Lauren Lazaro (lel2176), Arthur Starodynov (as7123), Yuki Low (yl5503)"
 ---
 
-## Abstract (condenses a brief introduction, brief description of methods, and main results into a one-paragraph summary)
+## Abstract 
 
-## Introduction (brief context and background of the problem)
+Educational success is influenced by many factors related to a child's personal life and socio-economic factors. We predict a student's Math, Reading, and Writing Test Scores using a range of variables related to their family life, studying habits, ethnic background, and more. Using a variety of step-wise and criterion-based model selection approaches, we determine that the significant predictors of Math and Reading Test Scores are: gender, ethnic group, parental education, lunch type, test prep, parental marital status, sports participation, birth order, and study hours per week. The significant predictors of Writing Test Score were similar but also included the number of siblings a child has and the mode of transportation method to school. 
 
-It is well-documented that educational success is influenced by a multitude of factors that extend beyond one's academic preparation. Our study aims to predict math, reading and writing scores based on personal and socio-economic variables. The dataset used for our study provides us with a diverse range of variables and gives us the opportunity to uncover patterns that influence a student's test outcome.
+## Introduction
 
-## Methods (data description and statistical methods)
+It is well-documented that educational success is influenced by a multitude of factors that extend beyond one's academic preparation. Our study aims to predict math, reading and writing scores based on personal and socio-economic variables. We do so via a variety of linear regressions and variable selection techniques. The dataset used for our study provides us with a diverse range of variables and gives us the opportunity to uncover patterns that influence a student's test outcome.
+
+## Methods
 
 The dataset is a sample of 948 individuals from a public school with math, reading, and writing test scores (ranging from 0-100) and the following variables of interest: gender, ethnic group, parental education, lunch type, test prep, parent's marital status, sports participation, first child, number of siblings, means of transportation to school, number of weekly study hours. Due to significant missing data, we imputed the missing values with the average or most common value per variable.
 
@@ -147,7 +149,7 @@ writing_back %>%
 ```
 
 
-\\
+
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Math
@@ -172,7 +174,7 @@ math_for %>%
   kableExtra::kable(caption = "Math score forwards stepwise model")
 ```
 
-\
+
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Reading
@@ -196,7 +198,7 @@ reading_for %>%
   kableExtra::kable(caption = "Reading score forwards stepwise model")
 ```
 
-\
+
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Writing
@@ -221,7 +223,7 @@ writing_for %>%
   kableExtra::kable(caption = "Writing score forwards stepwise model")
 ```
 
-\\
+
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Math
@@ -246,7 +248,7 @@ math_both %>%
   kableExtra::kable(caption = "Math score stepwise model")
 ```
 
-\
+
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Reading
@@ -270,7 +272,7 @@ reading_both %>%
   kableExtra::kable(caption = "Reading score stepwise model")
 ```
 
-\
+
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Writing
@@ -295,7 +297,6 @@ writing_both %>%
   kableExtra::kable(caption = "Writing score stepwise model")
 ```
 
-\\
 
 
 ```{r p-values math, echo = F, warning = F, message = F, results='hide'}
@@ -354,7 +355,7 @@ writing_pval_both <- lm(WritingScore ~ TestPrep + Gender + LunchType + ParentEdu
                     data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as forward
 ```
 
-\\
+
 
 ```{r BIC math, warning = F, message = F, echo = F, results='hide'}
 # Math
@@ -402,7 +403,6 @@ writing_BIC_both <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchT
 ```
 
 
-\\
 
 ```{r adj R2 math, echo = F, results = "hide", message= F, warning=F}
 # Math
@@ -455,9 +455,7 @@ reading_adjR2 <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType
                  data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as math & writing
 ```
 
-\\
 
-\\
 
 
 ```{r all models, eval = F, results = "hide", echo = F, message=F, warning=F}
@@ -556,7 +554,7 @@ allmods %>%
   select(adj.r.squared, outcome, model)
 ```
 
-\
+
 
 ```{r diagnostics, echo = F, results= "hide", eval = F}
 ## Diagnostics
@@ -573,6 +571,7 @@ plot(math_pval_for)
 
 ## Conclusions/Discussion
 
+__insert__
 
 
 ## Tables
@@ -625,13 +624,19 @@ math_pval_for %>%
   kableExtra::kable(caption = "Table 4. Math Score Final Model")
 ```
 
+
 ## Appendix
 
+Insert Lasso and RF?
 
 
 
 ## A brief summary on each group member's contribution (method, data analysis, writing, etc).
 
+Ekaterina wrote the abstract, introduction and parts of the results, conducted the MLR modeling, and created Tables 1-4.
 
+Yuki did __insert__
 
+Arthur did __insert__
 
+Lauren did __insert__
