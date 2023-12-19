@@ -74,11 +74,13 @@ After looking at the histograms of the continuous outcomes, we decided that the 
 
 We used a few different methods for model building. First, we decided to use backwards, forwards and stepwise regression. Then, we split our data into training and validation sets for each student (math, reading, writing). We used Lasso regression to select important variables and their coefficients. We also proceeded with building Random Forest models to predict the scores for each student. Our model was then validated using the validation sets.
 
-The chosen model was then tested through model diagnosis and influence diagnosis to make sure all assumptions are met and no significant outliers were influencing the model. 
+The chosen model was then tested through model diagnostics and influential observation diagnostics to make sure all assumptions are met and no significant outliers were influencing the model.
 
 ## Results
 
-In order to predict test score from our variables of interest, we decided to use backwards, forwards, and stepwise regression. Each of the three methods selected the same results for each outcome. For math score as the outcome, the optimal predictors of Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours. For Reading score as the outcome, the optimal predictors are Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours. For writing score as the outcome, the optimal predictors are Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours.
+In order to predict test score from our variables of interest, we decided to use backwards, forwards, and stepwise regression using Aikake's Information Criteria (AIC) as the criteria. Each of the three methods selected the same results for each outcome. 
+
+For math score as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport,  IsFirstChild, and WklyStudyHours. For Reading score as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, IsFirstChild, and WklyStudyHours. For writing score as the outcome, the optimal predictors are Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours.
 
 ```{r, warning = F, message = F, eval=FALSE, echo = F}
 ## Math
@@ -99,7 +101,7 @@ math_back %>%
   mutate(estimate = round(estimate, 3),
          p.value = round(p.value, 3),
          p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
-  kableExtra::kable(caption = "Table 2. Math score backwards stepwise model")
+  kableExtra::kable(caption = "Table 2. Math score stepwise model")
 ```
 
 ```{r, warning = F, message = F, eval=FALSE, echo = F}
@@ -120,7 +122,7 @@ reading_back %>%
   mutate(estimate = round(estimate, 3),
          p.value = round(p.value, 3),
          p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
-  kableExtra::kable(caption = "Table 3. Reading score backwards stepwise model")
+  kableExtra::kable(caption = "Table 3. Reading score stepwise model")
 ```
 
 \
@@ -144,28 +146,157 @@ writing_back %>%
   mutate(estimate = round(estimate, 3),
          p.value = round(p.value, 3),
          p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
-  kableExtra::kable(caption = "Table 4. Writing score backwards stepwise model")
+  kableExtra::kable(caption = "Writing score stepwise model")
 ```
 
 
-Testing interaction models:
+\\
 
 ```{r, warning = F, message = F, eval=FALSE, echo = F}
 ## Math
-test <- lm(MathScore ~ Gender + LunchType + EthnicGroup + PracticeSport + ParentEduc + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + ParentMaritalStatus + TestPrep, 
-   data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
-summary(test)
-step(test, direction = "backward")
-
-testing <- lm(MathScore ~ Gender + LunchType + EthnicGroup + PracticeSport + ParentEduc + IsFirstChild + WklyStudyHours + ParentMaritalStatus + TestPrep + PracticeSport:ParentEduc, data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
-summary(testing)
-
-# NrSiblings + TransportMeans drop out
+# Forwards stepwise regression
+math_full <- lm(MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+math_int <- lm(MathScore ~ 1, data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+step(math_int, direction = "forward", scope = formula(math_full))
 ```
 
+```{r, warning = F, message = F, echo = F, eval = F}
+# Math
+math_for <- lm(formula = MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + 
+     TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
+   data = data_cleaned %>% select(-c(ReadingScore, WritingScore))) # (comes from step() above)
 
+math_for %>% 
+  broom::tidy() %>%
+  dplyr::select(term, estimate, p.value) %>%
+  mutate(estimate = round(estimate, 3),
+         p.value = round(p.value, 3),
+         p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
+  kableExtra::kable(caption = "Math score forwards stepwise model")
+```
 
+\
 
+```{r, warning = F, message = F, eval=FALSE, echo = F}
+## Reading
+# Forwards stepwise regression
+reading_full <- lm(ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
+reading_int <- lm(ReadingScore ~ 1, data = data_cleaned %>% select(-c(MathScore, WritingScore)))
+step(reading_int, direction = "forward", scope = formula(reading_full))
+```
+
+```{r, warning = F, message = F, echo = F, eval = F}
+reading_for <- lm(formula = ReadingScore ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours, 
+   data = data_cleaned %>% select(-c(MathScore, WritingScore))) # (comes from step() above)
+
+reading_for %>% 
+  broom::tidy() %>%
+  dplyr::select(term, estimate, p.value) %>%
+  mutate(estimate = round(estimate, 3),
+         p.value = round(p.value, 3),
+         p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
+  kableExtra::kable(caption = "Reading score forwards stepwise model")
+```
+
+\
+
+```{r, warning = F, message = F, eval=FALSE, echo = F}
+## Writing
+# Forwards stepwise regression
+writing_full <- lm (WritingScore ~ ., data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
+writing_int <- lm (WritingScore ~ 1, data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
+step(writing_int, direction = "forward", scope = formula(writing_full))
+```
+
+```{r, warning = F, message = F, echo = F, eval = F}
+# Writing
+writing_for <- lm(formula = WritingScore ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
+   data = data_cleaned %>% dplyr::select(-c(MathScore, ReadingScore))) # (comes from step() above)
+
+writing_for %>% 
+  broom::tidy() %>%
+  dplyr::select(term, estimate, p.value) %>%
+  mutate(estimate = round(estimate, 3),
+         p.value = round(p.value, 3),
+         p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
+  kableExtra::kable(caption = "Writing score forwards stepwise model")
+```
+
+\\
+
+```{r, warning = F, message = F, eval=FALSE, echo = F}
+## Math
+# stepwise regression
+math_full <- lm(MathScore ~ ., data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+math_int <- lm(MathScore ~ 1, data = data_cleaned %>% select(-c(ReadingScore, WritingScore)))
+step(math_int, direction = "both", scope = formula(math_full))
+```
+
+```{r, warning = F, message = F, echo = F, eval = F}
+# Math
+math_both <- lm(formula = MathScore ~ Gender + EthnicGroup + ParentEduc + LunchType + 
+     TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
+   data = data_cleaned %>% select(-c(ReadingScore, WritingScore))) # (comes from step() above)
+
+math_both %>% 
+  broom::tidy() %>%
+  dplyr::select(term, estimate, p.value) %>%
+  mutate(estimate = round(estimate, 3),
+         p.value = round(p.value, 3),
+         p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
+  kableExtra::kable(caption = "Math score stepwise model")
+```
+
+\
+
+```{r, warning = F, message = F, eval=FALSE, echo = F}
+## Reading
+# stepwise regression
+reading_full <- lm(ReadingScore ~ ., data = data_cleaned %>% select(-c(MathScore, WritingScore)))
+reading_int <- lm(ReadingScore ~ 1, data = data_cleaned %>% select(-c(MathScore, WritingScore)))
+step(reading_int, direction = "both", scope = formula(reading_full))
+```
+
+```{r, warning = F, message = F, echo = F, eval = F}
+reading_both <- lm(formula = ReadingScore ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + WklyStudyHours, 
+   data = data_cleaned %>% select(-c(MathScore, WritingScore))) # (comes from step() above)
+
+reading_both %>% 
+  broom::tidy() %>%
+  dplyr::select(term, estimate, p.value) %>%
+  mutate(estimate = round(estimate, 3),
+         p.value = round(p.value, 3),
+         p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
+  kableExtra::kable(caption = "Reading score stepwise model")
+```
+
+\
+
+```{r, warning = F, message = F, eval=FALSE, echo = F}
+## Writing
+# stepwise regression
+writing_full <- lm (WritingScore ~ ., data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
+writing_int <- lm (WritingScore ~ 1, data = data_cleaned %>% select(-c(MathScore, ReadingScore)))
+step(writing_int, direction = "both", scope = formula(writing_full))
+```
+
+```{r, warning = F, message = F, echo = F, eval = F}
+# Writing
+writing_both <- lm(formula = WritingScore ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + WklyStudyHours, 
+   data = data_cleaned %>% dplyr::select(-c(MathScore, ReadingScore))) # (comes from step() above)
+
+writing_both %>% 
+  broom::tidy() %>%
+  dplyr::select(term, estimate, p.value) %>%
+  mutate(estimate = round(estimate, 3),
+         p.value = round(p.value, 3),
+         p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
+  kableExtra::kable(caption = "Writing score stepwise model")
+```
 
 
 ## Conclusions/Discussion
