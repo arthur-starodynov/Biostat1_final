@@ -5,9 +5,9 @@ editor: visual
 author: "Ekaterina Hofrenning (eih2108), Lauren Lazaro (lel2176), Arthur Starodynov (as7123), Yuki Low (yl5503)"
 ---
 
-## Abstract 
+## Abstract
 
-Educational success is influenced by many factors related to a child's personal life and socio-economic factors. We predict a student's Math, Reading, and Writing Test Scores using a range of variables related to their family life, studying habits, ethnic background, and more. Using a variety of step-wise and criterion-based model selection approaches, we determine that the significant predictors of Math and Reading Test Scores are: gender, ethnic group, parental education, lunch type, test prep, parental marital status, sports participation, birth order, and study hours per week. The significant predictors of Writing Test Score were similar but also included the number of siblings a child has and the mode of transportation method to school. 
+Educational success is influenced by many factors related to a child's personal life and socio-economic factors. We predict a student's Math, Reading, and Writing Test Scores using a range of variables related to their family life, studying habits, ethnic background, and more. Using a variety of step-wise and criterion-based model selection approaches, we determine that the significant predictors of Math and Reading Test Scores are: gender, ethnic group, parental education, lunch type, test prep, parental marital status, sports participation, birth order, and study hours per week. The significant predictors of Writing Test Score were similar but also included the number of siblings a child has and the mode of transportation method to school.
 
 ## Introduction
 
@@ -65,23 +65,21 @@ data_cleaned <- data.frame(apply(data, 2, function(x) ifelse(is.na(x), names(sor
 
 ```
 
-
 After looking at the histograms of the continuous outcomes, we decided that the variables looked fairly normal so we did not use log transformations.
 
-We employed a multi-faceted approach to model building. Initially, we fit simple linear regression (SLR) models for each of the three scores, utilizing all available covariates in our dataset. Subsequently, we conducted a comprehensive exploration by implementing backward, forward, and stepwise regression techniques using p-values, AIC, and BIC as the criterion of interest. We also fit models using the Adjusted R^2 criterion-based approach. This allowed us to assess how variables varied when adjusting for all covariates through multiple linear regression modeling. The combination of these methods provided a nuanced understanding of the relationships between predictors and scores, capturing both individual and collective effects. The optimal models were determined by maximizing the Adjusted R^2, which penalizes the measure as the number of predictors increase. This helps to ensure we choose a better tradeoff between bias and variance.
+We employed a multi-faceted approach to model building. Initially, we fit simple linear regression (SLR) models for each of the three scores, utilizing all available covariates in our dataset. Subsequently, we conducted a comprehensive exploration by implementing backward, forward, and stepwise regression techniques using p-values, AIC, and BIC as the criterion of interest. We also fit models using the Adjusted R\^2 criterion-based approach. This allowed us to assess how variables varied when adjusting for all covariates through multiple linear regression modeling. The combination of these methods provided a nuanced understanding of the relationships between predictors and scores, capturing both individual and collective effects. The optimal models were determined by maximizing the Adjusted R\^2, which penalizes the measure as the number of predictors increase. This helps to ensure we choose a better tradeoff between bias and variance.
 
-The chosen models were then tested through model diagnostics and influential observation diagnostics to make sure all linear assumptions are met and no significant outliers were influencing the model. 
+The chosen models were then tested through model diagnostics and influential observation diagnostics to make sure all linear assumptions are met and no significant outliers were influencing the model.
 
 ## Results
 
 From the SLR model, we found that the linear association between MathScore and the predictors LunchType, Gender, TestPrep and WklyStudyHours were significant. The average increase in MathScore was 8.7216 (p=3e-09) for students of ethnic group B and 3.4986 (p=0.00759) for students of ethnic group C compared to students of ethnic group A without adjusting for all other covariates. The average increase in MathScore between students with parents with some high school education and students with parents who completed their high school education was 6.0952 (p=0.000139) without adjusting for all other covariates. The average decrease in MathScore between students with parents with some high school education and students with parents who have their Master's degree was 2.8793 (p=0.009353) without adjusting for all other covariates. The average increase in MathScore between students with divorced parents and students with married parents was 4.142 (p=0.040) without adjusting for all other covariates. The average decrease in MathScore was 3.6763 (p=0.041) for students with 1 sibling and 3.8757 (p=0.0390) for students with 2 siblings compared to only children without adjusting for all other covariates. Note that the linear association between MathScore and PracticeSport, IsFirstChild, and TransportMeans were not significant.
 
-We fit several Multivariate Linear Regressions (MLR) using a variety of predictor selection techniques. First, we fit the MLR models using backwards, forwards, and stepwise regression with p-values, AIC, and BIC as the criterion of interest. Next, we fit the MLR models using the Adjusted R^2 criterion method, which penalizes the R^2 as the number of predictors increases. In order to determine the best models of best fit, we chose the models with the highest Adjusted R^2 value. For Math Score as the outcome, the optimal model contained Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours as predictors. For Reading Score as the outcome, the optimal model contained Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, NrSiblings, TransportMeans, and WklyStudyHours as predictors. For Writing score as the outcome, the optimal model contained Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours as predictors. 
+We fit several Multivariate Linear Regressions (MLR) using a variety of predictor selection techniques. First, we fit the MLR models using backwards, forwards, and stepwise regression with p-values, AIC, and BIC as the criterion of interest. Next, we fit the MLR models using the Adjusted R\^2 criterion method, which penalizes the R\^2 as the number of predictors increases. In order to determine the best models of best fit, we chose the models with the highest Adjusted R\^2 value. For Math Score as the outcome, the optimal model contained Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours as predictors. For Reading Score as the outcome, the optimal model contained Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, NrSiblings, TransportMeans, and WklyStudyHours as predictors. For Writing score as the outcome, the optimal model contained Gender, EthnicGroup, ParentEduc, LunchType, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, and WklyStudyHours as predictors.
 
 Model diagnosis is an essential step in the modeling process. The models need to be checked through visual and statistical tests to make sure all assumptions are met. Diagnostics of the final models looked good, and we determined that the residual plots looked normal enough to safely consider our results valid. In addition to model diagnostics, we looked for the presence of influential observations using Cook's distance. We determined that there was no presence of worrisome influential observations in the three final models.
 
 Our estimates for coefficients for each of our significant covariates associated with Math Score, Reading Score, and Writing Score are located in our Tables section in Tables 2, 3 and 4.
-
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Math
@@ -148,9 +146,6 @@ writing_back %>%
   kableExtra::kable(caption = "Writing score stepwise model")
 ```
 
-
-
-
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Math
 # Forwards stepwise regression
@@ -174,8 +169,6 @@ math_for %>%
   kableExtra::kable(caption = "Math score forwards stepwise model")
 ```
 
-
-
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Reading
 # Forwards stepwise regression
@@ -197,8 +190,6 @@ reading_for %>%
          p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
   kableExtra::kable(caption = "Reading score forwards stepwise model")
 ```
-
-
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Writing
@@ -223,8 +214,6 @@ writing_for %>%
   kableExtra::kable(caption = "Writing score forwards stepwise model")
 ```
 
-
-
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Math
 # stepwise regression
@@ -248,8 +237,6 @@ math_both %>%
   kableExtra::kable(caption = "Math score stepwise model")
 ```
 
-
-
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Reading
 # stepwise regression
@@ -271,8 +258,6 @@ reading_both %>%
          p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
   kableExtra::kable(caption = "Reading score stepwise model")
 ```
-
-
 
 ```{r, warning = F, message = F, echo = F, results = "hide"}
 ## Writing
@@ -296,8 +281,6 @@ writing_both %>%
          p.value = case_when(p.value < .001 ~ "<.001", p.value >= .001 ~ as.character(p.value))) %>%
   kableExtra::kable(caption = "Writing score stepwise model")
 ```
-
-
 
 ```{r p-values math, echo = F, warning = F, message = F, results='hide'}
 ## Math
@@ -355,8 +338,6 @@ writing_pval_both <- lm(WritingScore ~ TestPrep + Gender + LunchType + ParentEdu
                     data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as forward
 ```
 
-
-
 ```{r BIC math, warning = F, message = F, echo = F, results='hide'}
 # Math
 stepwise(math_full, direction = "backward", criterion = "BIC") # labels it as AIC but it's BIC
@@ -401,8 +382,6 @@ stepwise(writing_full, direction = "forward/backward", criterion = "BIC")
 writing_BIC_both <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep, 
                     data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as backward & forward
 ```
-
-
 
 ```{r adj R2 math, echo = F, results = "hide", message= F, warning=F}
 # Math
@@ -454,9 +433,6 @@ reading_adjR2 <- lm(WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType
                    PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours, 
                  data = data_cleaned %>% select(-c(MathScore, ReadingScore))) # same as math & writing
 ```
-
-
-
 
 ```{r all models, eval = F, results = "hide", echo = F, message=F, warning=F}
 ## List of our models:
@@ -554,8 +530,6 @@ allmods %>%
   select(adj.r.squared, outcome, model)
 ```
 
-
-
 ```{r diagnostics, echo = F, results= "hide", eval = F}
 ## Diagnostics
 # Writing: AIC stepwise (same as p-val forwards and p-value both stepwise)
@@ -568,11 +542,17 @@ plot(reading_adjR2)
 plot(math_pval_for)
 ```
 
-
 ## Conclusions/Discussion
 
-__insert__
+In conclusion, our study aimed to predict Math, Reading, and Writing test scores based on a variety of personal and socio-economic variables. After attempting several modeling methods, we successfully identified several significant predictors for each test score. The variables: gender, ethnic group, parental education, lunch type, test preparation, parental marital status, sports participation, birth order, and weekly study hours were consistently found to influence Math and Reading Test Scores. The number of siblings and the mode of transportation variables were also significant predictors for Writing Test Scores along with the other predictors mentioned.
 
+Our finalized models were determined using a combination of step-wise and criterion-based model selection methods which allowed us to understand the relationship between predictors and scores better. Our use of adjusted R-squared value as a criterion for model selection allows us to find a balance between bias and variance, ensuring that the models we choose are both robust and interpretable. We ran model diagnostics as well as influential observation diagnostics in order to confirm the validity of our finalized models. All of the results indicated the absence of worrisome influential observations.
+
+Our study findings revealed the complex relationship of variables that influence a student's educational outcomes. For example, ethnic disparities, as evidenced by differences in test scores between different ethnic groups, are evident which reveal the need for targeted intervention in order to combat these inequalities that are seen in student's educations.
+
+Some potential limitations of our study include negligence of interactions between variables and generalization. For this project, we specifically wanted to focus on implementing all the different types of model building techniques that we learned in P8130. Given the time constraint, we were unable to allocate more time to literature review to assess whether interactions between some of our covariates existed. In addition to this, we acknowledge that there was little to no background given for this dataset. We are unaware of the population that this specific dataset was sampled from so the results from this study are unable to be generalized to a larger population. Nevertheless, our rigorous modeling approaches and diagnostic checks do enhance the credibility of our findings.
+
+All in all, our study advances the general understanding of what predictors are important for Math, Reading and Writing test scores, providing a solid foundation for more future research and educational interventions.
 
 ## Tables
 
@@ -588,7 +568,6 @@ table1 %>% as_flex_table()
 ```
 
 \
-
 
 ```{r, echo = F}
 writing_both %>%
@@ -624,19 +603,16 @@ math_pval_for %>%
   kableExtra::kable(caption = "Table 4. Math Score Final Model")
 ```
 
-
 ## Appendix
 
 Insert Lasso and RF?
-
-
 
 ## A brief summary on each group member's contribution (method, data analysis, writing, etc).
 
 Ekaterina wrote the abstract, introduction and parts of the results, conducted the MLR modeling, and created Tables 1-4.
 
-Yuki did __insert__
+Yuki wrote the methods, majority of the results section, conclusion and discussion section and conducted data cleaning, exploration and visualization and SLR modeling.
 
-Arthur did __insert__
+Arthur did **insert**
 
-Lauren did __insert__
+Lauren did **insert**
